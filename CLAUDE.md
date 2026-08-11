@@ -232,6 +232,12 @@ import tego samego pliku dołożył 0.
 ⚠️ **Format „pełny" NIE nadaje się do tamtego importu** — ma kolumny „Gmina"
 i „Miejscowość", które tamten importer mapuje na to samo pole.
 
+**Jutro — przycisk zamiast pliku.** `importer.importuj_rspo()` przyjmuje
+**ścieżkę do pliku** i dopasowuje po numerze RSPO, więc przeniesienie jednym
+kliknięciem nie wymaga żadnej nowej logiki importu — tylko transportu między
+dwiema aplikacjami stojącymi na tym samym serwerze. Warianty, koszt i pytania
+do klienta: `docs/POMYSL_przycisk_do_leadow.md`.
+
 ⚠️ **Dopasowywanie naszych starych rekordów do rejestru to NIE jest ten projekt.**
 Robi to `..\leady_app_v5\narzedzia\rspo.py dopasuj` i tam zostaje — dotyczy bazy
 leadów (10 par duplikatów, 16 nazw potocznych typu „Piasek", „EduHub"), nie
@@ -363,7 +369,14 @@ Rozbicie w rejonach: 733 przedszkola · 549 podstawówek · 278 zespołów szkó
    w repo**. Przycisk „Odśwież z rejestru" na ekranie *Wgraj plik*, z datą
    ostatniego odświeżenia — **nie cron**. Szczegóły i mapowanie pól:
    `tmp/API_RSPO_notatki.md`, sekcja 5.
-4. **Mapa, etap 2 — pinezki placówek (~1 dzień + czas na współrzędne).** Wymaga
+4. **Przycisk „Przenieś do leadów" (~pół dnia)** — zamiast pobierz XLSX + wgraj
+   ręcznie. **Da się tanio, bo trudna część jest już zrobiona:**
+   `importer.importuj_rspo()` po tamtej stronie przyjmuje ścieżkę do pliku
+   i dopasowuje po numerze RSPO (stąd 1 605 wgranych, 0 przy powtórce). Brakuje
+   samego transportu — jeden endpoint w leadach, wspólny sekret w `.env` obu
+   aplikacji, jeden przycisk u nas. Wysyłać ma **bieżące filtry**, nie całość.
+   Pomysł, warianty i pytania do klienta: **`docs/POMYSL_przycisk_do_leadow.md`**.
+5. **Mapa, etap 2 — pinezki placówek (~1 dzień + czas na współrzędne).** Wymaga
    `lat`/`lon`: z API (potwierdzone, patrz sekcja 4) albo z geokodowania adresów
    w Nominatim (limit 1 zapytanie/s → ~30 min dla wykazu, ~1,5 h dla całego
    śląskiego, jednorazowo, zapisane w bazie). Kolumny już są.
@@ -379,6 +392,11 @@ Rozbicie w rejonach: 733 przedszkola · 549 podstawówek · 278 zespołów szkó
   ale to Kasia wie, z kim umawia się DT.
 - **Kasia:** 10 par zdublowanych szkół i 16 nazw potocznych — **temat bazy
   leadów**, nie tego narzędzia.
+- **Kasia, do przycisku „Przenieś do leadów":** co ze szkołami, które już są
+  w leadach? Dziś import je pomija po numerze RSPO — nie rusza statusu ani
+  historii. Ale rejestr bywa świeższy (telefon, dyrektor, nazwa). Pomijać /
+  uzupełniać puste pola / pokazywać różnice do zatwierdzenia. Pełna lista pytań
+  na spotkanie: `docs/POMYSL_przycisk_do_leadow.md`.
 
 ---
 
@@ -387,6 +405,7 @@ Rozbicie w rejonach: 733 przedszkola · 549 podstawówek · 278 zespołów szkó
 | Co | Gdzie |
 |---|---|
 | **Wdrożenie na VPS** krok po kroku (DNS, nginx, hasło, certbot, kopie) | `docs\WDROZENIE.md` |
+| **Przycisk „Przenieś do leadów"** — pomysł, warianty, pytania do klienta | `docs\POMYSL_przycisk_do_leadow.md` |
 | Wzór bloku nginx (kopiowany na serwer wprost z repozytorium) | `nginx\rspo.silesia3d.site.conf` |
 | Wdrożenie aplikacji leadów — szerszy opis tej samej ścieżki | `..\leady_app_v5\docs\15_DOMENA_I_WDROZENIE.md` |
 | **Ustalenia o API** (pola, filtry, regulamin, limity, plan wdrożenia) | `tmp\API_RSPO_notatki.md` — **czytać przed pracą nad API** |
