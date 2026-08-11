@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}RSPO{% endblock %} · Baza placówek</title>
+{# Czcionka systemowa (Segoe UI), tak jak w aplikacji leadów. Nic nie pobieramy
+   z zewnątrz — na serwerze bez internetu narzędzie wygląda tak samo. #}
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="any">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    {# logo na białym kafelku — tukan jest czarny, na granacie by zginął #}
+    <a class="brand" href="{{ url_for('pulpit') }}">
+      <span class="brand-logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="SILESIA 3D" width="34" height="28">
+      </span>
+      <span class="brand-txt">Baza&nbsp;RSPO</span>
+      <span class="brand-tag">placówki oświatowe · rejony</span>
+    </a>
+
+    <nav class="nav">
+      <a href="{{ url_for('pulpit') }}"      class="{{ 'on' if nav == 'pulpit' }}">Pulpit</a>
+      <a href="{{ url_for('placowki') }}"    class="{{ 'on' if nav == 'placowki' }}">Placówki</a>
+      <a href="{{ url_for('rejony_view') }}" class="{{ 'on' if nav == 'rejony' }}">Rejony</a>
+      <a href="{{ url_for('import_view') }}" class="{{ 'on' if nav == 'import' }}">Wgraj plik</a>
+    </nav>
+
+    <div class="topbar-right">
+      {% block topbar_right %}{% endblock %}
+    </div>
+  </div>
+</header>
+
+{% with komunikaty = get_flashed_messages(with_categories=true) %}
+  {% if komunikaty %}
+  <div class="flashes">
+    {% for kat, tresc in komunikaty %}
+    <div class="flash {{ 'flash-err' if kat == 'err' else 'flash-ok' }}">{{ tresc }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main class="wrap">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="stopka wrap">
+  <span>Lustro Rejestru Szkół i Placówek Oświatowych · numer RSPO jest kluczem,
+    więc ponowne wgranie pliku aktualizuje, a nie dubluje.</span>
+  <span class="muted nums">{{ dzis }}</span>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="{{ url_for('static', filename='rspo.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

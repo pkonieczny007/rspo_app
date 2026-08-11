@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Placówki{% endblock %}
+
+{# `link(...)` (z app.py) zachowuje wszystkie bieżące filtry i podmienia jeden.
+   Bez tego kliknięcie w nagłówek kolumny gubiłoby wybrany rejon. #}
+{% macro sortuj(pole, etykieta) -%}
+  <a href="{{ link(sort=pole) }}">{{ etykieta }}{% if f.sort == pole %} ↓{% endif %}</a>
+{%- endmacro %}
+
+{% block topbar_right %}
+<a class="btn btn-secondary btn-sm" href="{{ link('eksport_view', format='pelny') }}">↓ Pełny XLSX</a>
+<a class="btn btn-primary btn-sm" href="{{ link('eksport_view', format='wykaz') }}"
+   title="8 kolumn w formacie, który przyjmuje „↑ Import → RSPO” w aplikacji leadów">↓ Wykaz do leadów</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="kicker">Rejestr</div>
+    <h1>Placówki <span class="muted nums" style="font-size:18px">· {{ razem|liczba }}</span></h1>
+  </div>
+  <div class="head-actions small muted">
+    {% if pods.uczniow %}<span class="nums">{{ pods.uczniow|liczba }}</span> uczniów ·{% endif %}
+    <span class="nums">{{ pods.bez_telefonu|liczba }}</span> bez telefonu ·
+    <span class="nums">{{ pods.bez_maila|liczba }}</span> bez maila
+    {% if pods.objetych %}· <span class="nums">{{ pods.objetych|liczba }}</span> objętych działaniem{% endif %}
+  </div>
+</div>
+
+<form class="filters" method="get" action="{{ url_for('placowki') }}">
+  <input class="input input-auto" type="search" name="q" value="{{ f.q }}"
+         placeholder="nazwa, miejscowość, ulica, nr RSPO…" style="min-width:250px">
+
+  <select class="input input-auto" name="rejon">
+    <option value="">— rejon: wszystkie —</option>
+    <option value="dowolny" {{ 'selected' if f.rejon == 'dowolny' }}>w naszych rejonach</option>
+    <option value="brak"    {{ 'selected' if f.rejon == 'brak' }}>poza rejonami</option>
+    {% for r in rejony %}
+    <option value="{{ r.id }}" {{ 'selected' if f.rejon == r.id|string }}>{{ r.nazwa }} ({{ r.placowek }})</option>
+    {% endfor %}
+  </select>
+
+  <select class="input input-auto" name="powiat">
+    <option value="">— powiat —</option>
+    {% for p in slowniki.powiaty %}
+    <option value="{{ p }}" {{ 'selected' if f.powiat == p }}>{{ p }}</option>
+    {% endfor %}
+  </select>
+
+  <select class="input input-auto" name="typ">
+    <option value="">— typ (dokładny) —</option>
+    {% for t in slowniki.typy %}
+    <option value="{{ t.typ }}" {{ 'selected' if f.typ == t.typ }}>{{ t.typ }} ({{ t.ile }})</option>
+    {% endfor %}
+  </select>
+
+  <select class="input input-auto" name="publicznosc">
+    <option value="">— publiczność —</option>
+    {% for p in slowniki.publicznosc %}
+    <option value="{{ p }}" {{ 'selected' if f.publicznosc == p }}>{{ p }}</option>
+    {% endfor %}
+  </select>
+
+  <select class="input input-auto" name="stan">
+    <option value="czynne"    {{ 'selected' if f.stan not in ('zniknely','wszystkie') }}>czynne</option>
+    <option value="zniknely"  {{ 'selected' if f.stan == 'zniknely' }}>zniknęły z rejestru</option>
+    <option value="wszystkie" {{ 'selected' if f.stan == 'wszystkie' }}>wszystkie</option>
+  </select>
+
+  <input type="hidden" name="grupa" value="{{ f.grupa }}">
+  <input type="hidden" name="sort" value="{{ f.sort }}">
+  <div class="filters-right">
+    <button class="btn btn-primary btn-sm" type="submit">Filtruj</button>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('placowki') }}">Wyczyść</a>
+  </div>
+
+  {# Grupy typów jako przełącznik, nie kolejna lista rozwijana. Rejestr ma
+     43 typy placówek — lista z 43 pozycjami to spis treści, a nie filtr. #}
+  <div class="filters-row2">
+    <span class="small muted" style="font-weight:700;letter-spacing:.09em">RODZAJ</span>
+    <span class="seg">
+      <a class="seg-opt {{ 'on' if not f.grupa }}"        href="{{ link(grupa='') }}">wszystkie</a>
+      <a class="seg-opt {{ 'on' if f.grupa == 'nasze' }}" href="{{ link(grupa='nasze') }}">nasze typy</a>
+      {% for klucz, etykieta, _w in grupy_typow %}
+      <a class="seg-opt {{ 'on' if f.grupa == klucz }}"   href="{{ link(grupa=klucz) }}">{{ etykieta }}</a>
+      {% endfor %}
+      <a class="seg-opt {{ 'on' if f.grupa == 'inne' }}"  href="{{ link(grupa='inne') }}">inne</a>
+    </span>
+  </div>
+</form>
+
+{% if razem %}
+<div class="table-scroll">
+  <table class="table">
+    <thead>
+      <tr>
+        <th style="min-width:280px">{{ sortuj('nazwa', 'Nazwa') }}</th>
+        <th>{{ sortuj('typ', 'Typ') }}</th>
+        <th>Rejon</th>
+        <th>{{ sortuj('miejscowosc', 'Miejscowość') }}</th>
+        <th>Adres</th>
+        <th>Telefon</th>
+        <th>E-mail</th>
+        <th class="right">{{ sortuj('uczniowie', 'Uczn.') }}</th>
+        <th>Organ prowadzący</th>
+        <th class="right">{{ sortuj('rspo', 'RSPO') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for w in wiersze %}
+    <tr class="{{ 'znikla' if w.nieobecna_od }}">
+      <td>
+        <a class="nazwa" href="{{ url_for('placowka', rspo=w.rspo) }}">{{ w.nazwa }}</a>
+        {% if w.objeta %}<span class="tag tag-amber">objęta</span>{% endif %}
+        {% if w.nieobecna_od %}<span class="tag tag-warn">brak w rejestrze od {{ w.nieobecna_od }}</span>{% endif %}
+        {% if w.rspo_nadrzedny %}<span class="tag tag-neutral"
+          title="człon zespołu — ten sam adres i telefon co pozostałe człony">w zespole</span>{% endif %}
+      </td>
+      <td class="small">{{ w.typ }}</td>
+      <td>
+        {% if w.rejon_nazwa %}
+        <span class="tag tag-rejon" style="background:{{ w.rejon_kolor }}">{{ w.rejon_nazwa }}</span>
+        {% else %}<span class="small muted">—</span>{% endif %}
+      </td>
+      <td>{{ w.miejscowosc }}</td>
+      <td class="small">{{ w.adres }}{% if w.kod_pocztowy %}<span class="muted">, {{ w.kod_pocztowy }}</span>{% endif %}</td>
+      <td class="nums nowrap">{{ w.telefon or '' }}</td>
+      <td class="small">{{ w.email or '' }}</td>
+      <td class="right nums">{{ w.liczba_uczniow if w.liczba_uczniow is not none else '' }}</td>
+      <td class="small muted">{{ w.organ_nazwa or '' }}</td>
+      <td class="right nums small muted">{{ w.rspo }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="pager">
+  <span class="small muted">Strona {{ strona }} z {{ stron }} · {{ razem|liczba }} placówek</span>
+  {% if stron > 1 %}
+  <span class="pager-btns">
+    {% if strona > 1 %}<a class="btn btn-secondary btn-sm" href="{{ link(strona=strona-1) }}">← poprzednia</a>{% endif %}
+    {% if strona < stron %}<a class="btn btn-secondary btn-sm" href="{{ link(strona=strona+1) }}">następna →</a>{% endif %}
+  </span>
+  {% endif %}
+
+  {# Flaga „objęta działaniem” na całym wyniku filtrów — bo flaga ma sens
+     dopiero na tysiącu placówek, a klikanie tysiąca przełączników to nie jest
+     praca dla człowieka. #}
+  <form method="post" action="{{ url_for('objete_hurtem') }}"
+        style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+    {% for k, v in f.items() %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+    <span class="small muted">Te {{ razem|liczba }}:</span>
+    <button class="btn btn-secondary btn-sm" name="wartosc" value="1">oznacz jako objęte działaniem</button>
+    <button class="btn btn-ghost" name="wartosc" value="0">zdejmij oznaczenie</button>
+  </form>
+</div>
+{% else %}
+<div class="uwaga">Żadna placówka nie pasuje do tych filtrów.
+  {% if not f.q and not f.rejon %} Baza może być pusta —
+  <a href="{{ url_for('import_view') }}">wgraj plik z rspo.gov.pl</a>.{% endif %}</div>
+{% endif %}
+{% endblock %}

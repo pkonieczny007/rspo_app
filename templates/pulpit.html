@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}Pulpit{% endblock %}
+
+{% block topbar_right %}
+<a class="btn btn-primary btn-sm" href="{{ url_for('import_view') }}">↑ Wgraj plik RSPO</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="kicker">Rejestr Szkół i Placówek Oświatowych</div>
+    <h1>Baza placówek</h1>
+    <p class="lede">
+      Wszystko, co rejestr wie o placówkach w naszym zasięgu. Plik z rspo.gov.pl
+      wgrywa się tutaj, a stąd wychodzi wykaz, który łyka aplikacja leadów.
+      Tożsamość placówki niesie numer RSPO, więc kolejne wgranie tego samego
+      pliku aktualizuje wpisy zamiast dokładać je obok.
+    </p>
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('rejony_view') }}">Rejony</a>
+    <a class="btn btn-primary btn-sm"
+       href="{{ url_for('eksport_view', rejon='dowolny', grupa='nasze') }}">↓ Wykaz do aplikacji leadów</a>
+  </div>
+</div>
+
+{% if not d.razem %}
+<div class="zrodlo section">
+  <a href="{{ rspo_www }}" target="_blank" rel="noopener" title="Rejestr Szkół i Placówek Oświatowych">
+    <img src="{{ url_for('static', filename='logo_rspo.png') }}"
+         alt="Rejestr Szkół i Placówek Oświatowych" width="152" height="62">
+  </a>
+  <div class="zrodlo-txt">
+    <b>Baza jest pusta — zacznij od pobrania pliku z rejestru</b>
+    <span>rspo.gov.pl → wyszukiwarka → „Pobierz wyniki” → CSV. Nie trzeba niczego
+      filtrować; cała Polska to ok. 42 MB, a my wciągniemy z tego samo śląskie.</span>
+  </div>
+  <a class="btn btn-secondary" href="{{ rspo_www }}" target="_blank" rel="noopener">
+    Otwórz rspo.gov.pl ↗</a>
+  <a class="btn btn-primary" href="{{ url_for('import_view') }}">↑ Wgraj plik</a>
+</div>
+{% else %}
+
+<div class="section kafle">
+  <div class="kafel">
+    <div class="kafel-l">W bazie</div>
+    <div class="kafel-v">{{ d.razem|liczba }}</div>
+    <div class="kafel-o">czynnych placówek z rejestru</div>
+  </div>
+  <div class="kafel kafel-ok">
+    <div class="kafel-l">W naszych rejonach</div>
+    <div class="kafel-v">{{ d.w_rejonach|liczba }}</div>
+    <div class="kafel-o">{{ d.poza_rejonami|liczba }} poza rejonami — do przejrzenia
+      na ekranie <a href="{{ url_for('rejony_view') }}">Rejony</a></div>
+  </div>
+  <div class="kafel kafel-akcent">
+    <div class="kafel-l">Wykaz roboczy</div>
+    <div class="kafel-v">{{ d.wykaz|liczba }}</div>
+    <div class="kafel-o">rejony × nasze typy — tyle realnie da się obdzwonić</div>
+  </div>
+  <div class="kafel">
+    <div class="kafel-l">Uczniów w rejonach</div>
+    <div class="kafel-v">{{ d.uczniow|liczba }}</div>
+    <div class="kafel-o">suma z rejestru; puste pola liczone jako zero</div>
+  </div>
+  {% if d.znikniete %}
+  <div class="kafel kafel-alarm">
+    <div class="kafel-l">Zniknęły z rejestru</div>
+    <div class="kafel-v">{{ d.znikniete|liczba }}</div>
+    <div class="kafel-o"><a href="{{ url_for('placowki', stan='zniknely') }}">obejrzyj</a>
+      — oznaczone, nie skasowane</div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="cols cols-2 section">
+  <div>
+    <div class="section-title">Co jest w rejonach — wg rodzaju placówki</div>
+    <div class="table-scroll">
+      <table class="table table-tight">
+        <thead><tr><th>Rodzaj</th><th class="right">Placówek</th>
+                   <th class="right">Uczniów / dzieci</th><th></th></tr></thead>
+        <tbody>
+        {% for klucz, etykieta in etykiety_grup.items() %}
+          {% set g = d.wg_grupy.get(klucz) %}
+          {% if g %}
+          <tr>
+            <td>{{ etykieta }}
+              {% if klucz in nasze_grupy %}<span class="tag tag-ok">nasz typ</span>{% endif %}</td>
+            <td class="right nums">{{ g.ile|liczba }}</td>
+            <td class="right nums muted">{{ g.uczniow|liczba if g.uczniow else '—' }}</td>
+            <td><a class="small" href="{{ url_for('placowki', rejon='dowolny', grupa=klucz) }}">pokaż</a></td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted" style="margin-top:8px">
+      „Nasz typ” to grupy, w których SILESIA 3D prowadzi zajęcia. Reszta zostaje
+      w bazie — Wojtek widzi pełny zasięg — ale nie zaśmieca wykazu roboczego.
+    </p>
+  </div>
+
+  <div>
+    <div class="section-title">Rejony</div>
+    <div class="table-scroll" style="max-height:420px">
+      <table class="table table-tight">
+        <thead><tr><th>Rejon</th><th class="right">Placówek</th>
+                   <th class="right">Podst.</th><th class="right">Przedszk.</th></tr></thead>
+        <tbody>
+        {% for r in rejony %}
+        <tr>
+          <td>
+            <span class="rejon-kropka" style="display:inline-block;background:{{ r.kolor }}"></span>
+            <a href="{{ url_for('placowki', rejon=r.id) }}">{{ r.nazwa }}</a>
+          </td>
+          <td class="right nums strong">{{ r.placowek|liczba }}</td>
+          <td class="right nums muted">{{ r.wg_grupy.get('podstawowki', 0) }}</td>
+          <td class="right nums muted">{{ r.wg_grupy.get('przedszkola', 0) }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted" style="margin-top:8px">
+      <a href="{{ url_for('rejony_view') }}">Rejony →</a> tam się je poszerza
+      i tam widać, co leży obok, a nie jest jeszcze niczyje.
+    </p>
+  </div>
+</div>
+
+{% endif %}
+
+<div class="section">
+  <div class="section-title">Ostatnie wgrania</div>
+  {% if historia %}
+  <p class="small muted" style="margin:-4px 0 12px">
+    Rytm: raz w miesiącu. Świeży plik pobiera się z
+    <a href="{{ rspo_www }}" target="_blank" rel="noopener">rspo.gov.pl ↗</a>
+    (wyszukiwarka → „Pobierz wyniki” → CSV), a wgrywa
+    <a href="{{ url_for('import_view') }}">tutaj</a>.
+  </p>
+  <div class="table-scroll">
+    <table class="table table-tight">
+      <thead><tr><th>Kiedy</th><th>Plik</th><th>Zakres</th>
+        <th class="right">Nowych</th><th class="right">Zmienionych</th>
+        <th class="right">Bez zmian</th><th class="right">Zniknęło</th><th></th></tr></thead>
+      <tbody>
+      {% for i in historia %}
+      <tr>
+        <td class="nowrap nums">{{ i.kiedy }}</td>
+        <td>{{ i.plik }}</td>
+        <td class="small muted">{{ i.zakres }}</td>
+        <td class="right nums strong">{{ i.nowych|liczba }}</td>
+        <td class="right nums">{{ i.zmienionych|liczba }}</td>
+        <td class="right nums muted">{{ i.bez_zmian|liczba }}</td>
+        <td class="right nums">{{ i.zniknelo|liczba if i.zniknelo else '—' }}</td>
+        <td><a class="small" href="{{ url_for('import_szczegoly', import_id=i.id) }}">szczegóły</a></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted small">Jeszcze nic nie wgrano.</p>
+  {% endif %}
+</div>
+{% endblock %}

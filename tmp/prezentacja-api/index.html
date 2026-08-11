@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API RSPO a nasza aplikacja — mikroprezentacja (11.08.2026)</title>
+<style>
+:root{
+  --bg:#0d232a; --panel:#ffffff; --panel-2:#f7fafc;
+  --ink:#1f2937; --muted:#667085;
+  --brand:#0f2a33; --brand-l:#1d4757;
+  --cyan:#22c2f2; --cyan-t:#0b6f93; --cyan-l:#eef7fb; --cyan-b:#bfe4f2;
+  --amber:#fcaf23; --amber-t:#8a6516; --amber-l:#fff8e8; --amber-b:#ecd9a6;
+  --line:#e3e9ee; --line-2:#eef3f7;
+  --ok:#28a745; --ok-l:#e8f6ec; --ok-t:#1d7a33; --ok-b:#b7e0c1;
+  --warn:#ee3c23; --warn-l:#fdece9; --warn-t:#b82812; --warn-b:#f5c2b7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.6 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.nums{font-variant-numeric:tabular-nums}
+
+/* --- pojedynczy slajd ------------------------------------------------ */
+.slajd{display:none;max-width:1080px;margin:0 auto;padding:26px 30px 90px;min-height:100vh}
+.slajd.on{display:block}
+.krok{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cyan);padding-top:14px}
+h1{color:#fff;font-size:38px;line-height:1.15;margin:8px 0 12px;max-width:26ch}
+h2{color:#fff;font-size:27px;line-height:1.2;margin:6px 0 4px;max-width:30ch}
+.lede{color:#a8cddb;font-size:16.5px;max-width:80ch;margin:0 0 20px}
+.karta{background:var(--panel);border-radius:10px;padding:20px 24px;margin:14px 0;
+  box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.karta h3{font-size:15px;color:var(--brand-l);margin:0 0 8px;text-transform:uppercase;
+  letter-spacing:.05em}
+p{max-width:88ch;margin:8px 0}
+ul{max-width:88ch;padding-left:20px;margin:8px 0}
+li{margin:6px 0}
+code{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;
+  padding:1px 5px;font:13.5px/1.4 Consolas,"Cascadia Mono",monospace;color:var(--brand-l)}
+.slajd > code, h1 code{color:#bfe4f2;background:rgba(255,255,255,.08);border-color:#2b5765}
+pre{background:#08181d;color:#d7e7ee;border-radius:8px;padding:14px 16px;overflow:auto;
+  font:13px/1.65 Consolas,"Cascadia Mono",monospace;margin:12px 0}
+pre .c{color:#7fa8b8}
+pre .k{color:#fcaf23}
+
+/* --- tabele ---------------------------------------------------------- */
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{border-bottom:1px solid var(--line-2);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--panel-2);color:var(--brand);font-size:12px;text-transform:uppercase;
+  letter-spacing:.05em;border-bottom:2px solid var(--line)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* --- plakietki i kafle ------------------------------------------------ */
+.pl{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;
+  border:1px solid;white-space:nowrap}
+.pl.ok{background:var(--ok-l);border-color:var(--ok-b);color:var(--ok-t)}
+.pl.brak{background:var(--warn-l);border-color:var(--warn-b);color:var(--warn-t)}
+.pl.trwa{background:var(--amber-l);border-color:var(--amber-b);color:var(--amber-t)}
+.pl.info{background:var(--cyan-l);border-color:var(--cyan-b);color:var(--cyan-t)}
+.kafle{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:16px 0}
+.kafel{background:rgba(255,255,255,.06);border:1px solid #2b5765;border-radius:9px;padding:14px 16px}
+.kafel .v{font-size:28px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;line-height:1.1}
+.kafel .k{font-size:12.5px;color:#a8cddb;margin-top:4px}
+.kafel.akcent{background:rgba(34,194,242,.13);border-color:var(--cyan)}
+.kafel.akcent .v{color:var(--cyan)}
+.kafel.ostrz{background:rgba(252,175,35,.12);border-color:var(--amber)}
+.kafel.ostrz .v{color:var(--amber)}
+
+/* --- ramki ------------------------------------------------------------ */
+.uwaga{border-left:4px solid var(--amber);background:var(--amber-l);padding:12px 16px;
+  border-radius:0 8px 8px 0;margin:14px 0}
+.dobre{border-left:4px solid var(--ok);background:var(--ok-l);padding:12px 16px;
+  border-radius:0 8px 8px 0;margin:14px 0}
+.zle{border-left:4px solid var(--warn);background:var(--warn-l);padding:12px 16px;
+  border-radius:0 8px 8px 0;margin:14px 0}
+.dwie{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:820px){.dwie{grid-template-columns:1fr}h1{font-size:29px}h2{font-size:22px}}
+
+/* --- pasek nawigacji -------------------------------------------------- */
+.pasek{position:fixed;left:0;right:0;bottom:0;background:rgba(8,24,29,.94);
+  border-top:1px solid #2b5765;display:flex;align-items:center;gap:12px;
+  padding:8px 18px;font-size:13px;color:#a8cddb;backdrop-filter:blur(6px)}
+.pasek button{background:var(--cyan-l);border:1px solid var(--cyan-b);color:var(--cyan-t);
+  border-radius:999px;padding:5px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.pasek button:hover{background:var(--cyan-b)}
+.pasek .tyt{flex:1;color:#fff;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pasek .lic{font-variant-numeric:tabular-nums}
+.postep{position:fixed;left:0;top:0;height:3px;background:var(--cyan);width:0;transition:width .18s}
+.zrodlo{color:#7fa8b8;font-size:12.5px;margin-top:18px}
+</style>
+</head>
+<body>
+
+<div class="postep" id="postep"></div>
+
+<!-- ============================================================ 1 -->
+<section class="slajd on" data-tyt="Tytuł">
+  <div class="krok">SILESIA 3D · rspo_app · 11.08.2026</div>
+  <h1>API RSPO a nasza aplikacja</h1>
+  <p class="lede">Co API naprawdę daje, czego nie daje, i co się u nas zmienia,
+  kiedy przyjdą dane dostępowe. Wszystkie liczby i nazwy pól poniżej pochodzą
+  ze specyfikacji pobranej dzisiaj z <code>api.rspo.gov.pl</code>, nie z opisów
+  ze stron trzecich.</p>
+
+  <div class="kafle">
+    <div class="kafel akcent"><div class="v">1.2.0</div><div class="k">wersja API (OpenAPI 3.1)</div></div>
+    <div class="kafel"><div class="v">12</div><div class="k">zasobów, w tym <code style="color:#bfe4f2;background:none;border:0">/api/placowki/</code></div></div>
+    <div class="kafel"><div class="v">0 zł</div><div class="k">koszt, dostęp bezterminowy</div></div>
+    <div class="kafel ostrz"><div class="v">14 dni</div><div class="k">na rozpatrzenie wniosku</div></div>
+  </div>
+
+  <div class="karta">
+    <h3>Jedno zdanie na wypadek, gdyby ktoś słuchał tylko pierwszego slajdu</h3>
+    <p><b>API nie zmienia sposobu, w jaki działa nasza aplikacja — dokłada jedno
+    źródło danych i jedno pole, którego w pliku CSV nie ma w ogóle:
+    współrzędne geograficzne.</b> Wszystko inne mamy już dziś, z pliku.</p>
+  </div>
+  <p class="zrodlo">Strzałki ← → albo spacja przewijają slajdy. Źródła: <code>rspo_app/tmp/zrodla/</code></p>
+</section>
+
+<!-- ============================================================ 2 -->
+<section class="slajd" data-tyt="Stan formalny">
+  <div class="krok">01 · Stan formalny</div>
+  <h2>Nowe API od stycznia, stare już nie żyje</h2>
+  <p class="lede">To nie jest ta sama usługa, o której czytaliśmy tydzień temu w starszych opracowaniach.</p>
+
+  <div class="karta">
+    <div class="scroll"><table>
+      <thead><tr><th>Fakt</th><th>Treść</th><th>Co z tego dla nas</th></tr></thead>
+      <tbody>
+        <tr><td>Nowe API</td><td>działa od <b>15.01.2026</b>, regulamin obowiązuje od 14.01.2026</td>
+            <td><span class="pl ok">aktualne</span></td></tr>
+        <tr><td>Stare API</td><td><code>api-rspo.men.gov.pl</code> <b>wyłączone 02.03.2026</b></td>
+            <td>sprawdzone: domena się nie rozwiązuje. Gotowce z internetu są martwe</td></tr>
+        <tr><td>Koszt</td><td>bezpłatne, dostęp <b>na czas nieokreślony</b></td>
+            <td><span class="pl ok">brak kosztu</span></td></tr>
+        <tr><td>Dostęp</td><td>wniosek mailem na <code>rspo@cie.gov.pl</code>, temat „Wniosek o dostęp do API [podmiot]”</td>
+            <td>jest <b>oficjalny wzór PDF</b> — załącznik, nie sam mail</td></tr>
+        <tr><td>Czas</td><td>rozpatrzenie <b>do 14 dni</b>, potem indywidualny login i hasło</td>
+            <td><span class="pl trwa">zegar rusza dopiero po wysłaniu</span></td></tr>
+        <tr><td>Limity</td><td>§3.5 — CIE <i>może</i> wprowadzić limity zapytań</td>
+            <td>dziś żadnej liczby w dokumentach</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="uwaga">
+    <b>§4 i §5 regulaminu:</b> CIE może zawiesić albo cofnąć dostęp i nie odpowiada
+    ani za niedostępność, ani za niezgodność danych ze stanem rzeczywistym.
+    Dlatego <b>ścieżka z plikiem CSV zostaje na stałe</b> — API jest drugim
+    źródłem, nie zamiennikiem. Narzędzie, które da się uruchomić tylko wtedy,
+    gdy cudzy serwer ma dobry dzień, nie jest narzędziem produkcyjnym.
+  </div>
+</section>
+
+<!-- ============================================================ 3 -->
+<section class="slajd" data-tyt="Jak to działa">
+  <div class="krok">02 · Technika</div>
+  <h2>REST, JSON, login i hasło</h2>
+  <p class="lede">Nie klucz API w nagłówku — zwykły HTTP Basic Auth. To ma jedną konsekwencję, o której trzeba pamiętać.</p>
+
+  <pre><span class="c"># kolekcja placówek — całe śląskie, strona po stronie</span>
+GET <span class="k">https://</span>api.rspo.gov.pl/api/placowki/?wojewodztwo_nazwa=ŚLĄSKIE&amp;page=1&amp;pageSize=100
+Accept: application/json
+Authorization: Basic &lt;login:hasło&gt;
+
+<span class="c"># słowniki do list wyboru (11 sztuk)</span>
+/api/typ/   /api/status_publiczno_prawny/   /api/kategoria_ucznia/   /api/etap_edukacyjny/
+/api/specyfika_szkoly/   /api/zwiazanie_organizacyjne/   /api/gminy_rodzaje/
+/api/wojewodztwa/   /api/powiaty/   /api/gminy/   /api/miejscowosci/</pre>
+
+  <div class="dwie">
+    <div class="karta">
+      <h3>Co warto wiedzieć</h3>
+      <ul>
+        <li><b>Paginacja</b> <code>page</code> + <code>pageSize</code>, domyślnie <b>100</b> na stronę</li>
+        <li>Odpowiedź to <b>goła tablica JSON</b> — nie ma pola z liczbą wszystkich wyników, więc stronicujemy do pierwszej niepełnej strony</li>
+        <li>Śląskie = <b>6 116</b> placówek → <b>62</b> zapytania przy 100/stronę, <b>7</b> przy 1000</li>
+      </ul>
+    </div>
+    <div class="zle">
+      <b>Uwaga bezpieczeństwa.</b> W specyfikacji serwer podany jest jako
+      <code>http://api.rspo.gov.pl</code> — bez S. Basic Auth po czystym HTTP to
+      wysyłanie hasła otwartym tekstem <i>przy każdym zapytaniu</i>.
+      W naszym kodzie adres wpisujemy na sztywno z <code>https://</code>,
+      a login i hasło idą z <code>os.environ</code> — nigdy do repozytorium.
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 4 -->
+<section class="slajd" data-tyt="Filtry">
+  <div class="krok">03 · Filtry</div>
+  <h2>18 parametrów — i dwa, których nie ma</h2>
+
+  <div class="karta">
+    <h3>Czym zawężamy zapytanie</h3>
+    <p><b>Terytorialnie:</b> województwo, powiat, gmina, miejscowość — każde
+    <i>po nazwie albo po kodzie TERYT</i>. <b>Tożsamościowo:</b> <code>RSPO</code>,
+    <code>NIP</code>, <code>REGON</code>. <b>Merytorycznie:</b> <code>typ_podmiotu_id</code>,
+    <code>status_publiczno_prawny_id</code>, <code>kategoria_ucznia_id</code>,
+    <code>etap_edukacji_id</code>, <code>zlikwidowana</code>,
+    <code>podmiot_prowadzacy_id</code> / <code>_regon</code>.</p>
+    <div class="dobre">
+      <b>Filtr po kodzie TERYT gminy to dokładnie to, na czym stoją nasze rejony.</b>
+      Rejon = lista obszarów (powiat|gmina); poszerzenie rejonu o gminę może się
+      przełożyć jeden do jednego na parametr zapytania. Zero tłumaczenia nazw,
+      zero literówek w „Zabrze” kontra „ZABRZE”.
+    </div>
+  </div>
+
+  <div class="zle">
+    <b>Czego wśród filtrów nie ma — i co to znaczy:</b>
+    <ul>
+      <li><b>Nie ma „zmienione od daty”.</b> Każde odświeżenie = pobranie całości
+      i porównanie po naszej stronie. Dobra wiadomość: <code>magazyn.py</code>
+      robi dokładnie to od pierwszego dnia — nowe / zmienione / zniknięte
+      plus dziennik zmian pole po polu. <b>API nie wymusza tu ani jednej zmiany.</b></li>
+      <li><b>Nie ma szukania po fragmencie nazwy.</b> <code>RSPO</code>, <code>NIP</code>
+      i <code>REGON</code> to „full number”. Rozpoznawanie nazw potocznych
+      („MSP 1”, „Piasek”, „EduHub”) zostaje po naszej stronie — API tu nie pomoże.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ 5 -->
+<section class="slajd" data-tyt="Co API daje więcej">
+  <div class="krok">04 · Zysk</div>
+  <h2>Sześć rzeczy, których w pliku CSV nie ma</h2>
+
+  <div class="karta">
+    <div class="scroll"><table>
+      <thead><tr><th>Pole API</th><th>Co daje</th><th>Wartość dla nas</th></tr></thead>
+      <tbody>
+        <tr><td><code>geolokalizacja[]</code><br><span class="pl info">latitude / longitude</span></td>
+            <td>współrzędne placówki</td>
+            <td><b>To jest ten jeden powód, dla którego składamy wniosek.</b>
+            Etap 2 mapy (pinezki) bez geokodowania adresów i bez limitu 1 zapytanie/s.
+            Kolumny <code>lat</code>/<code>lon</code> czekają puste w schemacie</td></tr>
+        <tr><td><code>liczbaOddzialow</code></td><td>ile klas</td>
+            <td>obok liczby uczniów — porządkowanie obdzwaniania</td></tr>
+        <tr><td><code>etapyEdukacji[]</code></td><td>etapy jako słownik</td>
+            <td>filtr twardszy niż zgadywanie po słowach w nazwie typu</td></tr>
+        <tr><td><code>dyrektorImie</code> + <code>dyrektorNazwisko</code></td><td>rozbite na dwa pola</td>
+            <td>„Szanowna Pani Dyrektor Kowalska” bez parsowania tekstu</td></tr>
+        <tr><td>TERYT na 4 poziomach<br>+ <code>ulicaKodTERYT</code></td><td>komplet kodów</td>
+            <td>plik daje tylko TERYT gminy</td></tr>
+        <tr><td><code>adresDoKorespondecji*</code>,<br><code>czyPosiadaObwod</code>, <code>czyPosiadaInternat</code></td>
+            <td>6 pól adresu do pism, cechy placówki</td>
+            <td>wysyłki papierowe, segmentacja</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <p class="zrodlo">Pełne mapowanie 34 naszych kolumn na pola <code>PlacowkaDTO</code>: <code>tmp/API_RSPO_notatki.md</code></p>
+</section>
+
+<!-- ============================================================ 6 -->
+<section class="slajd" data-tyt="Czego API nie ma">
+  <div class="krok">05 · Strata</div>
+  <h2>Trzy kolumny, które API gubi</h2>
+  <p class="lede">Wymiana nie jest darmowa w jedną stronę. Plik z wyszukiwarki ma 54 kolumny, my bierzemy 34 — i trzech z nich w API po prostu nie ma.</p>
+
+  <div class="karta">
+    <div class="scroll"><table>
+      <thead><tr><th>Nasza kolumna</th><th>W API</th><th>Co robimy</th></tr></thead>
+      <tbody>
+        <tr><td><code>faks</code></td><td><span class="pl brak">nie istnieje</span></td>
+            <td>zostawiamy wartość z pliku, nie czyścimy</td></tr>
+        <tr><td><code>jezyki</code> (Języki nauczane)</td><td><span class="pl brak">nie istnieje</span></td>
+            <td>jw.</td></tr>
+        <tr><td><code>rodzaj_miejscowosci</code></td><td><span class="pl trwa">nie na placówce</span></td>
+            <td>jest w <code>/api/miejscowosci/</code> jako <code>rodzajMiejscowosci</code> —
+            dociągamy raz jako słownik po <code>miejscowoscKodTERYT</code>, nie zapytaniem na placówkę</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="uwaga">
+    <b>Wyjątek od naszej zasady „rejestr nadpisuje swoje pola”.</b>
+    Import z API musi te trzy kolumny <b>pominąć</b>, a nie wyzerować.
+    Inaczej pierwsze odświeżenie z API skasowałoby dane, które mamy poprawne
+    z pliku — i nikt by tego nie zauważył, bo w dzienniku zmian wyglądałoby to
+    jak „rejestr usunął faks”.
+  </div>
+</section>
+
+<!-- ============================================================ 7 -->
+<section class="slajd" data-tyt="Porównanie">
+  <div class="krok">06 · Porównanie</div>
+  <h2>Plik CSV (dziś) kontra API (po wniosku)</h2>
+
+  <div class="karta">
+    <div class="scroll"><table>
+      <thead><tr><th></th><th>Plik z rspo.gov.pl — <b>działa dziś</b></th><th>API — <b>po przyznaniu dostępu</b></th></tr></thead>
+      <tbody>
+        <tr><td>Gotowość</td><td><span class="pl ok">produkcja, 39/39 testów</span></td><td><span class="pl trwa">wniosek niewysłany + do 14 dni + ~1 dzień pracy</span></td></tr>
+        <tr><td>Praca człowieka</td><td>~10 min raz w miesiącu: pobrać, wgrać</td><td>kliknięcie „Odśwież z rejestru”</td></tr>
+        <tr><td>Zakres</td><td>cała Polska (56 190), filtrujemy do śląskiego</td><td>filtr po TERYT po stronie serwera — pobieramy tylko swoje</td></tr>
+        <tr><td>Współrzędne</td><td><span class="pl brak">brak — 54 kolumny, ani jednej z geo</span></td><td><span class="pl ok">są</span></td></tr>
+        <tr><td>Faks, języki</td><td><span class="pl ok">są</span></td><td><span class="pl brak">brak</span></td></tr>
+        <tr><td>Wykrywanie zmian</td><td>porównanie po numerze RSPO</td><td><b>identycznie</b> — API nie ma „zmienione od”</td></tr>
+        <tr><td>Ryzyko</td><td>człowiek wgra przefiltrowany plik → bezpiecznik ubytku (≤25 i ≤20%) blokuje</td><td>cudza usługa: zawieszenie, limity, przerwa techniczna (§4, §5)</td></tr>
+        <tr><td>Ślad</td><td>plik ląduje w <code>dane/wgrane/</code> ze znacznikiem czasu — da się wrócić</td><td>trzeba świadomie zapisywać odpowiedź, żeby mieć do czego wracać</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="dobre">
+    <b>Wniosek z tabeli:</b> API wygrywa jednym polem (geolokalizacja) i wygodą
+    (kliknięcie zamiast wizyty na stronie). Nie wygrywa <i>świeżością</i> danych,
+    <i>kompletnością</i> kolumn ani <i>niezawodnością</i>.
+    Dlatego to <b>drugie źródło</b>, a nie migracja.
+  </div>
+</section>
+
+<!-- ============================================================ 8 -->
+<section class="slajd" data-tyt="Co się zmienia u nas">
+  <div class="krok">07 · Nasza aplikacja</div>
+  <h2>Co trzeba dopisać: jeden plik</h2>
+  <p class="lede">Rdzeń <code>rspo_app</code> nie wie i nie musi wiedzieć, skąd przyszły wiersze.</p>
+
+  <pre><span class="c"># dziś</span>
+plik.py    <span class="c">CSV/XLSX  → lista słowników →</span> magazyn.wgraj() → baza
+<span class="c"># po dostępie do API</span>
+api.py     <span class="c">JSON      → lista słowników →</span> magazyn.wgraj() → baza
+           <span class="c">^ ta sama lista, ten sam magazyn, ta sama baza</span></pre>
+
+  <div class="dwie">
+    <div class="karta">
+      <h3>Bez zmian</h3>
+      <ul>
+        <li><code>db.py</code> — numer RSPO kluczem głównym</li>
+        <li><code>magazyn.py</code> — nowe / zmienione / zniknięte, dziennik zmian, bezpiecznik ubytku</li>
+        <li><code>rejony.py</code> — rejony po TERYT, gmina bije powiat</li>
+        <li><code>zapytania.py</code>, <code>eksport.py</code>, wykaz do aplikacji leadów</li>
+      </ul>
+    </div>
+    <div class="karta">
+      <h3>Do dopisania — ok. 1 dzień</h3>
+      <ul>
+        <li><code>api.py</code>: stronicowanie, spłaszczenie obiektów i tablic do naszych 34 kolumn, <code>lat</code>/<code>lon</code></li>
+        <li>login i hasło z <code>os.environ</code> (<code>RSPO_API_LOGIN</code>, <code>RSPO_API_HASLO</code>)</li>
+        <li>przycisk <b>„Odśwież z rejestru”</b> z datą ostatniego odświeżenia — <b>nie cron</b>: automat na serwerze umiera po cichu i nikt nie zauważy przez miesiąc</li>
+        <li>trzy kolumny pomijane przy imporcie z API (slajd 05)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 9 -->
+<section class="slajd" data-tyt="Wniosek">
+  <div class="krok">08 · Wniosek</div>
+  <h2>Stan na dziś: wniosek nie został wysłany</h2>
+  <p class="lede">W naszych dokumentach (12_RSPO.md, 11_PLAN_v5.md, analiza z 09.08) jest tylko
+  zadanie „wysłać, zegar 14 dni” i lista tego, co ma zawierać. Treści maila nigdzie nie było.</p>
+
+  <div class="dwie">
+    <div class="karta">
+      <h3>Czego wymaga CIE (§2.3 + wzór PDF)</h3>
+      <ul>
+        <li>dane identyfikacyjne podmiotu: nazwa, adres, NIP/REGON</li>
+        <li>osoba kontaktowa: imię, nazwisko, mail, telefon</li>
+        <li>osoba odpowiedzialna technicznie za integrację</li>
+        <li>opis planowanego wykorzystania</li>
+        <li>zakres uprawnień — <b>u nas: tylko odczyt</b></li>
+        <li>aplikacja/system i rodzaj pobieranych danych</li>
+        <li>przewidywana liczba zapytań miesięcznie</li>
+        <li>trzy oświadczenia + podpis</li>
+      </ul>
+    </div>
+    <div class="karta">
+      <h3>Co już przygotowane <span class="pl ok">gotowe</span></h3>
+      <ul>
+        <li><b>Pełny szkic maila</b> — <code>tmp/wniosek-mail-szkic.md</code></li>
+        <li>Oficjalny wzór <code>Wniosek.pdf</code> pobrany do <code>tmp/zrodla/</code></li>
+        <li>Liczba zapytań policzona: ~100–200 na odświeżenie, deklarujemy <b>do 2 000/mies.</b></li>
+        <li>Opis wykorzystania napisany <b>szeroko</b> (baza + kontakt + rejonizacja + geolokalizacja), bo §3.4 zabrania używania API „do celów niezgodnych z wnioskiem” — wąski opis oznaczałby drugi wniosek przy mapie</li>
+      </ul>
+      <div class="uwaga" style="margin-bottom:0">
+        <b>Brakuje tylko:</b> adresu, NIP i REGON spółki oraz decyzji, kto podpisuje wzór.
+        Po uzupełnieniu — mail wychodzi tego samego dnia.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 10 -->
+<section class="slajd" data-tyt="Rekomendacja">
+  <div class="krok">09 · Rekomendacja</div>
+  <h2>Wysłać wniosek, nie czekać na odpowiedź</h2>
+
+  <div class="karta">
+    <div class="scroll"><table>
+      <thead><tr><th>Kiedy</th><th>Co</th><th>Kto</th><th class="n">Ile</th></tr></thead>
+      <tbody>
+        <tr><td><b>dziś / jutro</b></td><td>uzupełnić NIP, REGON i adres w szkicu, podpisać <code>Wniosek.pdf</code>, wysłać na <code>rspo@cie.gov.pl</code></td><td>Przemek + biuro</td><td class="n">20 min</td></tr>
+        <tr><td>równolegle</td><td><b>Etap 1 mapy — granice gmin z PRG po TERYT.</b> Nie wymaga API i załatwia to, o co realnie chodziło w pytaniu o mapę</td><td>Przemek</td><td class="n">~1 dzień</td></tr>
+        <tr><td>po odpowiedzi</td><td><code>api.py</code> + przycisk „Odśwież z rejestru” + <code>lat</code>/<code>lon</code></td><td>Przemek</td><td class="n">~1 dzień</td></tr>
+        <tr><td>po odpowiedzi</td><td>Etap 2 mapy — pinezki placówek z <code>geolokalizacja</code></td><td>Przemek</td><td class="n">~0,5 dnia</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="dobre">
+    <b>Dlaczego w tej kolejności.</b> Zegar 14 dni rusza dopiero po wysłaniu maila,
+    a wysłanie kosztuje 20 minut. Wszystko pozostałe — miesięczny rytm, wykaz do
+    aplikacji leadów, rejony, mapa rejonów — <b>działa bez API i nie czeka na nikogo</b>.
+    Gdy dane dostępowe przyjdą, dokładamy jeden plik i jeden przycisk.
+    Gdy nie przyjdą albo dostęp zostanie kiedyś cofnięty, nie tracimy nic
+    poza pinezkami na mapie.
+  </div>
+
+  <p class="zrodlo">Materiały: <code>rspo_app/tmp/API_RSPO_notatki.md</code> ·
+  <code>rspo_app/tmp/wniosek-mail-szkic.md</code> ·
+  <code>rspo_app/tmp/zrodla/</code> (api-docs.yaml, Regulamin.pdf, Wniosek.pdf, RSPO-API-doc.pdf)</p>
+</section>
+
+<div class="pasek">
+  <button id="wstecz">←</button>
+  <button id="dalej">→</button>
+  <span class="tyt" id="tyt"></span>
+  <span class="lic" id="lic"></span>
+</div>
+
+<script>
+(function(){
+  var slajdy = document.querySelectorAll('.slajd');
+  var i = 0;
+  function pokaz(n){
+    i = Math.max(0, Math.min(slajdy.length - 1, n));
+    for (var j = 0; j < slajdy.length; j++) slajdy[j].classList.toggle('on', j === i);
+    document.getElementById('tyt').textContent = slajdy[i].dataset.tyt;
+    document.getElementById('lic').textContent = (i + 1) + ' / ' + slajdy.length;
+    document.getElementById('postep').style.width = ((i + 1) / slajdy.length * 100) + '%';
+    window.scrollTo(0, 0);
+    location.hash = 's' + (i + 1);
+  }
+  document.getElementById('dalej').onclick  = function(){ pokaz(i + 1); };
+  document.getElementById('wstecz').onclick = function(){ pokaz(i - 1); };
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { pokaz(i + 1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { pokaz(i - 1); e.preventDefault(); }
+    if (e.key === 'Home') pokaz(0);
+    if (e.key === 'End')  pokaz(slajdy.length - 1);
+  });
+  var start = parseInt((location.hash || '').replace('#s', ''), 10);
+  pokaz(isNaN(start) ? 0 : start - 1);
+})();
+</script>
+</body>
+</html>

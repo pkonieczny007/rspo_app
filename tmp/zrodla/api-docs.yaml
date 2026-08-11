@@ -1,0 +1,1302 @@
+openapi: 3.1.0
+info:
+  title: RSPO - API
+  description: ' '
+  version: 1.2.0
+servers:
+- url: http://api.rspo.gov.pl
+  description: Generated server url
+security:
+- basicAuth: []
+tags:
+- name: TypGminy
+  description: the TypGminy API
+- name: Placowka
+  description: the Placowka API
+- name: SpecyfikaSzkoly
+  description: the SpecyfikaSzkoly API
+- name: ZwiazanieOrganizacyjne
+  description: the ZwiazanieOrganizacyjne API
+- name: TypPodmiotu
+  description: the TypPodmiotu API
+- name: TerytPowiat
+  description: the TerytPowiat API
+- name: TerytGmina
+  description: the TerytGmina API
+- name: KategoriaUcznia
+  description: the KategoriaUcznia API
+- name: TerytMiejscowosc
+  description: the TerytMiejscowosc API
+- name: EtapEdukacyjny
+  description: the EtapEdukacyjny API
+- name: StatusPublicznoPrawny
+  description: the StatusPublicznoPrawny API
+- name: TerytWojewodztwo
+  description: the TerytWojewodztwo API
+paths:
+  /api/zwiazanie_organizacyjne/{id}:
+    get:
+      tags:
+      - ZwiazanieOrganizacyjne
+      summary: Retrieves a ZwiazanieOrganizacyjne resource.
+      operationId: getZwiazanieOrganizacyjneItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: ZwiazanieOrganizacyjne resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ZwiazanieOrganizacyjneDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ZwiazanieOrganizacyjneDTO"
+  /api/zwiazanie_organizacyjne/:
+    get:
+      tags:
+      - ZwiazanieOrganizacyjne
+      summary: Retrieves the collection of ZwiazanieOrganizacyjne resources.
+      operationId: getZwiazanieOrganizacyjneCollection
+      parameters:
+      - name: nazwa
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: ZwiazanieOrganizacyjne collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ZwiazanieOrganizacyjneDTO"
+  /api/wojewodztwa/{id}:
+    get:
+      tags:
+      - TerytWojewodztwo
+      summary: Retrieves a TerytWojewodztwo resource.
+      operationId: getTerytWojewodztwoItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: TerytWojewodztwo resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerytWojewodztwoDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerytWojewodztwoDTO"
+  /api/wojewodztwa/:
+    get:
+      tags:
+      - TerytWojewodztwo
+      summary: Retrieves the collection of TerytWojewodztwo resources.
+      operationId: getTerytWojewodztwoCollection
+      parameters:
+      - name: nazwa
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: TerytWojewodztwo collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TerytWojewodztwoDTO"
+  /api/typ/{id}:
+    get:
+      tags:
+      - TypPodmiotu
+      summary: Retrieves a TypPodmiotu resource.
+      operationId: getTypPodmiotuItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: TypPodmiotu resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TypPodmiotuDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TypPodmiotuDTO"
+  /api/typ/:
+    get:
+      tags:
+      - TypPodmiotu
+      summary: Retrieves the collection of TypPodmiotu resources.
+      operationId: getTypPodmiotuCollection
+      parameters:
+      - name: nazwa
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: TypPodmiotu collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TypPodmiotuDTO"
+  /api/status_publiczno_prawny/{id}:
+    get:
+      tags:
+      - StatusPublicznoPrawny
+      summary: Retrieves a StatusPublicznoPrawny resource.
+      operationId: getStatusPublicznoPrawnyItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: StatusPublicznoPrawny resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusPublicznoPrawnyDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusPublicznoPrawnyDTO"
+  /api/status_publiczno_prawny/:
+    get:
+      tags:
+      - StatusPublicznoPrawny
+      summary: Retrieves the collection of StatusPublicznoPrawny resources.
+      operationId: getStatusPublicznoPrawnyCollection
+      parameters:
+      - name: nazwa
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: StatusPublicznoPrawny collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StatusPublicznoPrawnyDTO"
+  /api/specyfika_szkoly/{id}:
+    get:
+      tags:
+      - SpecyfikaSzkoly
+      summary: Retrieves a SpecyfikaSzkoly resource.
+      operationId: getSpecyfikaSzkolyItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: SpecyfikaSzkoly resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpecyfikaSzkolyDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpecyfikaSzkolyDTO"
+  /api/specyfika_szkoly/:
+    get:
+      tags:
+      - SpecyfikaSzkoly
+      summary: Retrieves the collection of SpecyfikaSzkoly resources.
+      operationId: getSpecyfikaSzkolyCollection
+      parameters:
+      - name: nazwa
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: SpecyfikaSzkoly collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SpecyfikaSzkolyDTO"
+  /api/powiaty/{id}:
+    get:
+      tags:
+      - TerytPowiat
+      summary: Retrieves a TerytPowiat resource.
+      operationId: getTerytPowiatItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: TerytPowiat resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerytPowiatDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerytPowiatDTO"
+  /api/powiaty/:
+    get:
+      tags:
+      - TerytPowiat
+      summary: Retrieves the collection of TerytPowiat resources.
+      operationId: getTerytPowiatCollection
+      parameters:
+      - name: wojewodztwo.kodTeryt
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+      - name: nazwa
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: kodTeryt
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: TerytPowiat collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TerytPowiatDTO"
+  /api/placowki/{id}:
+    get:
+      tags:
+      - Placowka
+      summary: Retrieves a Placowka resource.
+      operationId: getPlacowkaItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Placowka resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlacowkaDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlacowkaDTO"
+  /api/placowki/:
+    get:
+      tags:
+      - Placowka
+      summary: Retrieves the collection of Placowka resources.
+      operationId: getPlacowkaCollection
+      parameters:
+      - name: wojewodztwo_nazwa
+        in: query
+        description: full voivodeship name
+        required: false
+        schema:
+          type: string
+      - name: wojewodztwo_kod_teryt
+        in: query
+        description: voivodeship code in TERYT registry
+        required: false
+        schema:
+          type: string
+      - name: powiat_nazwa
+        in: query
+        description: full county name
+        required: false
+        schema:
+          type: string
+      - name: powiat_kod_teryt
+        in: query
+        description: county code in the TERYT registry
+        required: false
+        schema:
+          type: string
+      - name: gmina_nazwa
+        in: query
+        description: full commune name
+        required: false
+        schema:
+          type: string
+      - name: gmina_kod_teryt
+        in: query
+        description: commune code in the TERYT registry
+        required: false
+        schema:
+          type: string
+      - name: miejscowosc_nazwa
+        in: query
+        description: ' full city name'
+        required: false
+        schema:
+          type: string
+      - name: miejscowosc_kod_teryt
+        in: query
+        description: city code in the TERYT registry
+        required: false
+        schema:
+          type: string
+      - name: RSPO
+        in: query
+        description: full RSPO  number
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: NIP
+        in: query
+        description: full NIP  number
+        required: false
+        schema:
+          type: string
+      - name: REGON
+        in: query
+        description: full REGON  number
+        required: false
+        schema:
+          type: string
+      - name: typ_podmiotu_id
+        in: query
+        description: TypPodmiotu  ID
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: status_publiczno_prawny_id
+        in: query
+        description: StatusPublicznoPrawny  ID
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: kategoria_ucznia_id
+        in: query
+        description: KategoriaUcznia  ID
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: etap_edukacji_id
+        in: query
+        description: EtapEdukacyjny ID
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: zlikwidowana
+        in: query
+        description: Include liquidated
+        required: false
+        schema:
+          type: boolean
+      - name: podmiot_prowadzacy_id
+        in: query
+        description: 'leading office ID '
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: podmiot_prowadzacy_regon
+        in: query
+        description: leading office full REGON  number
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: Placowka collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlacowkaDTO"
+  /api/miejscowosci/{id}:
+    get:
+      tags:
+      - TerytMiejscowosc
+      summary: Retrieves a TerytMiejscowosc resource.
+      operationId: getTerytMiejscowoscItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: TerytMiejscowosc resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerytMiejscowoscDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerytMiejscowoscDTO"
+  /api/miejscowosci/:
+    get:
+      tags:
+      - TerytMiejscowosc
+      summary: Retrieves the collection of TerytMiejscowosc resources.
+      operationId: getTerytMiejscowoscCollection
+      parameters:
+      - name: gmina.kodTeryt
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+      - name: nazwa
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: kodTeryt
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: TerytMiejscowosc collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TerytMiejscowoscDTO"
+  /api/kategoria_ucznia/{id}:
+    get:
+      tags:
+      - KategoriaUcznia
+      summary: Retrieves a KategoriaUcznia resource.
+      operationId: getKategoriaUczniaItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: KategoriaUcznia resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KategoriaUczniaDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KategoriaUczniaDTO"
+  /api/kategoria_ucznia/:
+    get:
+      tags:
+      - KategoriaUcznia
+      summary: Retrieves the collection of KategoriaUcznia resources.
+      operationId: getKategoriaUczniaCollection
+      parameters:
+      - name: nazwa
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: KategoriaUcznia collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KategoriaUczniaDTO"
+  /api/gminy_rodzaje/{id}:
+    get:
+      tags:
+      - TypGminy
+      summary: Retrieves a TypGminy resource.
+      operationId: getTypGminyItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: TypGminy resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerytRodzajGminyWithIdDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerytRodzajGminyWithIdDTO"
+  /api/gminy_rodzaje/:
+    get:
+      tags:
+      - TypGminy
+      summary: Retrieves the collection of TypGminy resources.
+      operationId: getTypGminyCollection
+      responses:
+        "200":
+          description: TypGminy collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TerytRodzajGminyWithIdDTO"
+  /api/gminy/{id}:
+    get:
+      tags:
+      - TerytGmina
+      summary: Retrieves a TerytGmina resource.
+      operationId: getTerytGminaItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: TerytGmina resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerytGminaDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TerytGminaDTO"
+  /api/gminy/:
+    get:
+      tags:
+      - TerytGmina
+      summary: Retrieves the collection of TerytGmina resources.
+      operationId: getTerytGminaCollection
+      parameters:
+      - name: powiat.kodTeryt
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+      - name: nazwa
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: kodTeryt
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: TerytGmina collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TerytGminaDTO"
+  /api/etap_edukacyjny/{id}:
+    get:
+      tags:
+      - EtapEdukacyjny
+      summary: Retrieves a EtapEdukacyjny resource.
+      operationId: getEtapEdukacyjnyItem
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: EtapEdukacyjny resource response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EtapEdukacyjnyDTO"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EtapEdukacyjnyDTO"
+  /api/etap_edukacyjny/:
+    get:
+      tags:
+      - EtapEdukacyjny
+      summary: Retrieves the collection of EtapEdukacyjny resources.
+      operationId: getEtapEdukacyjnyCollection
+      parameters:
+      - name: nazwa
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: page
+        in: query
+        description: The collection page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: pageSize
+        in: query
+        description: The collection page size. Default value is 100
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: EtapEdukacyjny collection response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EtapEdukacyjnyDTO"
+components:
+  schemas:
+    ZwiazanieOrganizacyjneDTO:
+      type: object
+      description: ZwiazanieOrganizacyjne
+      properties:
+        id:
+          type: integer
+          format: int32
+        nazwa:
+          type: string
+    TerytWojewodztwoDTO:
+      type: object
+      description: TerytWojewodztwo
+      properties:
+        id:
+          type: integer
+          format: int32
+        kodTeryt:
+          type: string
+          description: "@Groups({\"read\"})"
+        nazwa:
+          type: string
+          description: "* @Groups({\"read\"})"
+    TypPodmiotuDTO:
+      type: object
+      description: TypPodmiotu
+      properties:
+        id:
+          type: integer
+          format: int32
+        nazwa:
+          type: string
+    StatusPublicznoPrawnyDTO:
+      type: object
+      description: StatusPublicznoPrawny
+      properties:
+        id:
+          type: integer
+          format: int32
+        nazwa:
+          type: string
+    SpecyfikaSzkolyDTO:
+      type: object
+      description: SpecyfikaSzkoly
+      properties:
+        id:
+          type: integer
+          format: int32
+        nazwa:
+          type: string
+    TerytPowiatDTO:
+      type: object
+      description: TerytPowiat
+      properties:
+        id:
+          type: integer
+          format: int32
+        kodTeryt:
+          type: string
+        nazwa:
+          type: string
+          description: "@Groups({\"read\"})"
+        wojewodztwo:
+          $ref: "#/components/schemas/TerytWojewodztwoDTO"
+    EtapEdukacyjnyDTO:
+      type: object
+      description: EtapEdukacyjny
+      properties:
+        id:
+          type: integer
+          format: int64
+        nazwa:
+          type: string
+    GeotagDTO:
+      type: object
+      properties:
+        latitude:
+          type: string
+        longitude:
+          type: string
+    KategoriaUczniaDTO:
+      type: object
+      description: KategoriaUcznia
+      properties:
+        id:
+          type: integer
+          format: int32
+        nazwa:
+          type: string
+    KsztalcenieDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nazwa:
+          type: string
+    KsztalcenieKpssDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nazwa:
+          type: string
+    KsztalcenieZawodoweArtystyczneDTO:
+      type: object
+      properties:
+        zawodId:
+          type: integer
+          format: int32
+        zawodNazwa:
+          type: string
+        specjalnosc:
+          type: string
+        specjalizacja:
+          type: string
+    PlacowkaDTO:
+      type: object
+      description: Placowka
+      properties:
+        numerRspo:
+          type: integer
+          format: int32
+        dataZalozenia:
+          type: string
+          format: date-time
+        dataRozpoczecia:
+          type: string
+          format: date-time
+        nip:
+          type: string
+          readOnly: true
+        regon:
+          type: string
+          readOnly: true
+        liczbaUczniow:
+          type: integer
+          format: int32
+          readOnly: true
+        nazwa:
+          type: string
+          readOnly: true
+        typ:
+          $ref: "#/components/schemas/TypPodmiotuDTO"
+          readOnly: true
+        dyrektorImie:
+          type: string
+          readOnly: true
+        dyrektorNazwisko:
+          type: string
+          readOnly: true
+        statusPublicznoPrawny:
+          $ref: "#/components/schemas/StatusPublicznoPrawnyDTO"
+        etapyEdukacji:
+          type: array
+          items:
+            $ref: "#/components/schemas/EtapEdukacyjnyDTO"
+          readOnly: true
+        dataWlaczeniaDoZespolu:
+          type: string
+          format: date-time
+          readOnly: true
+        dataLikwidacji:
+          type: string
+          format: date-time
+          readOnly: true
+        kategoriaUczniow:
+          $ref: "#/components/schemas/KategoriaUczniaDTO"
+        specyfikaSzkoly:
+          $ref: "#/components/schemas/SpecyfikaSzkolyDTO"
+        zwiazanieOrganizacyjne:
+          $ref: "#/components/schemas/ZwiazanieOrganizacyjneDTO"
+        czyPosiadaObwod:
+          type: boolean
+          readOnly: true
+        czyPosiadaInternat:
+          type: boolean
+          readOnly: true
+        czyDotacjaWPrzyszlymRoku:
+          type: boolean
+          readOnly: true
+        ksztalcenieZawodowe:
+          type: array
+          items:
+            $ref: "#/components/schemas/KsztalcenieDTO"
+          readOnly: true
+        ksztalcenieZawodoweArtystyczne:
+          type: array
+          items:
+            $ref: "#/components/schemas/KsztalcenieZawodoweArtystyczneDTO"
+          readOnly: true
+        ksztalcenieWkolegiachPracownikowSluzbSpolecznych:
+          type: array
+          items:
+            $ref: "#/components/schemas/KsztalcenieKpssDTO"
+          readOnly: true
+        podmiotPrzekazujacyDaneDoRSPO:
+          $ref: "#/components/schemas/PodmiotPrzekazujacyDaneDTO"
+          readOnly: true
+        podmiotProwadzacy:
+          type: array
+          items:
+            $ref: "#/components/schemas/PodmiotProwadzacyDTO"
+          readOnly: true
+        podmiotNadrzedny:
+          type: string
+        wojewodztwo:
+          type: string
+          readOnly: true
+        wojewodztwoKodTERYT:
+          type: string
+          readOnly: true
+        powiat:
+          type: string
+          readOnly: true
+        powiatKodTERYT:
+          type: string
+          readOnly: true
+        gmina:
+          type: string
+          readOnly: true
+        gminaKodTERYT:
+          type: string
+          readOnly: true
+        gminaRodzaj:
+          type: string
+          readOnly: true
+        miejscowosc:
+          type: string
+          readOnly: true
+        miejscowoscKodTERYT:
+          type: string
+          readOnly: true
+        ulica:
+          type: string
+          readOnly: true
+        ulicaKodTERYT:
+          type: string
+          readOnly: true
+        numerBudynku:
+          type: string
+          readOnly: true
+        numerLokalu:
+          type: string
+          readOnly: true
+        kodPocztowy:
+          type: string
+          readOnly: true
+        poczta:
+          type: string
+          readOnly: true
+        geolokalizacja:
+          type: array
+          items:
+            $ref: "#/components/schemas/GeotagDTO"
+          readOnly: true
+        telefon:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          readOnly: true
+        stronaInternetowa:
+          type: string
+          readOnly: true
+        adresDoKorespondecjiMiejscowosc:
+          type: string
+          readOnly: true
+        adresDoKorespondecjiUlica:
+          type: string
+          readOnly: true
+        adresDoKorespondecjiNumerBudynku:
+          type: string
+          readOnly: true
+        adresDoKorespondecjiNumerLokalu:
+          type: string
+          readOnly: true
+        adresDoKorespondecjiKodPocztowy:
+          type: string
+          readOnly: true
+        adresDoKorespondecjiPoczta:
+          type: string
+          readOnly: true
+        placowkiPodrzedne:
+          type: string
+          readOnly: true
+        liczbaOddzialow:
+          type: integer
+          format: int32
+          readOnly: true
+        rodzajSzkolyPlacowki:
+          $ref: "#/components/schemas/RodzajSzkolyPlacowkiDTO"
+          readOnly: true
+    PodmiotProwadzacyDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nazwa:
+          type: string
+        regon:
+          type: string
+        typ:
+          $ref: "#/components/schemas/TypPodmiotuDTO"
+    PodmiotPrzekazujacyDaneDTO:
+      type: object
+      properties:
+        nazwa:
+          type: string
+        regon:
+          type: string
+        typ:
+          $ref: "#/components/schemas/TypPodmiotuDTO"
+    RodzajSzkolyPlacowkiDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nazwa:
+          type: string
+    TerytGminaDTO:
+      type: object
+      description: TerytGmina
+      properties:
+        id:
+          type: integer
+          format: int32
+        kodTeryt:
+          type: string
+        nazwa:
+          type: string
+        active:
+          type: boolean
+        powiat:
+          $ref: "#/components/schemas/TerytPowiatDTO"
+        rodzajGminy:
+          $ref: "#/components/schemas/TerytRodzajGminyDTO"
+    TerytMiejscowoscDTO:
+      type: object
+      description: TerytMiejscowosc
+      properties:
+        id:
+          type: integer
+          format: int32
+        kodTeryt:
+          type: string
+        nazwa:
+          type: string
+        gmina:
+          $ref: "#/components/schemas/TerytGminaDTO"
+        rodzajMiejscowosci:
+          type: string
+    TerytRodzajGminyDTO:
+      type: object
+      description: TerytRodzajGminy
+      properties:
+        nazwa:
+          type: string
+    TerytRodzajGminyWithIdDTO:
+      type: object
+      description: TerytRodzajGminyWithId
+      properties:
+        nazwa:
+          type: string
+        id:
+          type: integer
+          format: int32
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic

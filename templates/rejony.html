@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Rejony{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="kicker">Obszar działania</div>
+    <h1>Rejony</h1>
+    <p class="lede">
+      Rejon to zbiór powiatów i gmin, nie kolumna na placówce — dlatego
+      poszerzenie terenu jest dopisaniem obszaru i natychmiastowym
+      przeliczeniem, a nie przepisywaniem tysiąca wierszy. Gmina ma
+      pierwszeństwo przed powiatem, więc Knurów zostaje przy swoim rejonie,
+      nawet gdyby cały powiat gliwicki trafił kiedyś do „Gliwic”.
+    </p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Nasze rejony</div>
+  <div class="rejony-siatka">
+    {% for r in rejony %}
+    <div class="rejon">
+      <div class="rejon-head">
+        <span class="rejon-kropka" style="background:{{ r.kolor }}"></span>
+        <span class="rejon-nazwa">{{ r.nazwa }}</span>
+        <span class="rejon-licznik" style="margin-left:auto">{{ r.placowek|liczba }}</span>
+        <a class="small" href="{{ url_for('placowki', rejon=r.id) }}">pokaż</a>
+      </div>
+      <div class="rejon-body">
+        <div class="rejon-grupy">
+          {% for klucz, etykieta in etykiety_grup.items() %}
+            {% if r.wg_grupy.get(klucz) %}
+            <span>{{ etykieta }}: <b>{{ r.wg_grupy[klucz] }}</b></span>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="obszary">
+          {% for o in r.obszary %}
+          <span class="obszar {{ 'obszar-gmina' if o.rodzaj == 'gmina' }}">
+            <b>{{ o.wartosc }}</b>
+            <span class="small muted">{{ o.rodzaj }}</span>
+            <form method="post" action="{{ url_for('rejon_obszar') }}"
+                  onsubmit="return confirm('Usunąć {{ o.rodzaj }} {{ o.wartosc }} z rejonu {{ r.nazwa }}?')">
+              <input type="hidden" name="akcja" value="usun">
+              <input type="hidden" name="obszar_id" value="{{ o.id }}">
+              <button class="btn-ghost" title="usuń z rejonu">×</button>
+            </form>
+          </span>
+          {% else %}
+          <span class="small muted">Rejon bez obszarów — nic do niego nie wpada.</span>
+          {% endfor %}
+        </div>
+
+        <form method="post" action="{{ url_for('rejon_obszar') }}"
+              style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <input type="hidden" name="rejon_id" value="{{ r.id }}">
+          <select class="input input-auto" name="rodzaj" style="min-width:100px">
+            <option value="powiat">powiat</option>
+            <option value="gmina">gmina</option>
+          </select>
+          <input class="input input-auto" name="wartosc" placeholder="nazwa z rejestru"
+                 style="min-width:150px" required>
+          <button class="btn btn-secondary btn-sm">+ poszerz</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Białe plamy — powiaty, które nie należą do żadnego rejonu</div>
+  <p class="small muted" style="margin:-4px 0 12px">
+    Liczby dotyczą <b>naszych typów</b> (przedszkola, podstawówki, zespoły,
+    domy kultury) i placówek czynnych. „Dodaj jako rejon” zakłada nowy rejon
+    o nazwie powiatu i od razu go przelicza — cofa się jednym kliknięciem.
+  </p>
+
+  {% if wolne %}
+  <div class="table-scroll" style="max-height:520px">
+    <table class="table">
+      <thead>
+        <tr><th>Powiat</th><th class="right">Naszych typów</th>
+            <th class="right">Podstawówek</th><th class="right">Przedszkoli</th>
+            <th class="right">Uczniów</th><th>Dlaczego warto o nim pamiętać</th><th></th></tr>
+      </thead>
+      <tbody>
+      {% for w in wolne %}
+      <tr>
+        <td class="strong">{{ w.powiat }}</td>
+        <td class="right nums strong">{{ w.placowek|liczba }}</td>
+        <td class="right nums muted">{{ w.podstawowek }}</td>
+        <td class="right nums muted">{{ w.przedszkoli }}</td>
+        <td class="right nums muted">{{ w.uczniow|liczba if w.uczniow else '—' }}</td>
+        <td class="small {{ 'muted' if not w.podpowiedz }}">{{ w.podpowiedz or '—' }}</td>
+        <td class="nowrap">
+          <a class="small" href="{{ url_for('placowki', powiat=w.powiat, grupa='nasze') }}">obejrzyj</a>
+          <form method="post" action="{{ url_for('rejon_obszar') }}" style="display:inline">
+            <input type="hidden" name="akcja" value="nowy-rejon">
+            <input type="hidden" name="rodzaj" value="powiat">
+            <input type="hidden" name="wartosc" value="{{ w.powiat }}">
+            <input type="hidden" name="nazwa" value="{{ w.powiat }}">
+            <button class="btn btn-secondary btn-sm">+ dodaj jako rejon</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted small">Wszystkie powiaty z bazy należą do jakiegoś rejonu.</p>
+  {% endif %}
+</div>
+
+<div class="section">
+  <div class="section-title">Nowy rejon od zera</div>
+  <form method="post" action="{{ url_for('rejon_obszar') }}" class="card elev"
+        style="flex-direction:row;gap:10px;flex-wrap:wrap;align-items:flex-end;max-width:820px">
+    <input type="hidden" name="akcja" value="nowy-rejon">
+    <div class="fld"><span class="fld-l">Nazwa rejonu</span>
+      <input class="input" name="nazwa" placeholder="np. Gliwice" required style="min-width:200px"></div>
+    <div class="fld"><span class="fld-l">Pierwszy obszar</span>
+      <select class="input input-auto" name="rodzaj">
+        <option value="powiat">powiat</option><option value="gmina">gmina</option>
+      </select></div>
+    <div class="fld"><span class="fld-l">Nazwa obszaru (jak w rejestrze)</span>
+      <input class="input" name="wartosc" placeholder="np. Gliwice albo tarnogórski" style="min-width:220px"></div>
+    <div class="fld"><span class="fld-l">Kolor</span>
+      <input class="input" type="color" name="kolor" value="#1c9dc4" style="width:64px;padding:3px"></div>
+    <button class="btn btn-primary">Załóż rejon</button>
+  </form>
+  <p class="small muted" style="margin-top:8px">
+    Nazwy obszarów bierzemy dokładnie z rejestru: miasto na prawach powiatu ma
+    nazwę miasta („Katowice”), powiat ziemski jest z małej litery („mikołowski”).
+    Obszar zajęty przez inny rejon zostanie do nowego <b>przeniesiony</b> —
+    powiemy o tym w komunikacie, żeby nikt nie szukał potem zaginionych placówek.
+  </p>
+</div>
+{% endblock %}

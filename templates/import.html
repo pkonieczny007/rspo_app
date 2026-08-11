@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}Wgraj plik RSPO{% endblock %}
+
+{% block topbar_right %}
+<a class="btn btn-secondary btn-sm" href="{{ rspo_www }}" target="_blank" rel="noopener">
+  rspo.gov.pl ↗</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="kicker">Aktualizacja bazy</div>
+    <h1>Wgraj plik z rejestru</h1>
+    <p class="lede">
+      Raz w miesiącu: pobierz plik z rspo.gov.pl i wrzuć go tutaj. Kolejne
+      wgranie <b>nie robi duplikatów</b> — tożsamość placówki niesie numer RSPO,
+      więc rekord, który już jest, zostaje zaktualizowany, a nie założony
+      drugi raz. Zobaczysz dokładnie, co doszło i co się zmieniło.
+    </p>
+  </div>
+</div>
+
+{# Krok zerowy: skąd wziąć plik. Bez świeżego pliku z rejestru nie ma czego
+   wgrywać, więc link stoi nad polem wyboru, a nie w instrukcji obok. #}
+<div class="zrodlo section">
+  <a href="{{ rspo_www }}" target="_blank" rel="noopener" title="Rejestr Szkół i Placówek Oświatowych">
+    <img src="{{ url_for('static', filename='logo_rspo.png') }}"
+         alt="Rejestr Szkół i Placówek Oświatowych" width="152" height="62">
+  </a>
+  <div class="zrodlo-txt">
+    <b>Najpierw pobierz aktualny plik z rejestru</b>
+    <span>rspo.gov.pl → wyszukiwarka → <b>„Pobierz wyniki"</b> → CSV.
+      Nie trzeba niczego zaznaczać ani filtrować — całe sito (województwo, typy,
+      rejony) jest tutaj. Cała Polska to ok. 42 MB.</span>
+  </div>
+  <a class="btn btn-primary" href="{{ rspo_www }}" target="_blank" rel="noopener">
+    Otwórz rspo.gov.pl ↗</a>
+</div>
+
+<div class="cols cols-2 section">
+  <form method="post" enctype="multipart/form-data" class="card elev">
+    <div class="strefa">
+      <div style="font-size:28px;line-height:1">↑</div>
+      <b>Wybierz plik z rspo.gov.pl</b>
+      <div class="small muted">.csv (tak jak pobiera się z wyszukiwarki) albo .xlsx</div>
+      <input class="input" type="file" name="plik" accept=".csv,.xlsx,.xlsm" required>
+    </div>
+
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:6px">
+      <div class="fld">
+        <span class="fld-l">Zakres</span>
+        <label class="check"><input type="radio" name="zakres" value="slaskie" checked>
+          tylko województwo śląskie</label>
+        <label class="check"><input type="radio" name="zakres" value="polska">
+          cała Polska (56 tys. placówek)</label>
+      </div>
+      <div class="fld">
+        <span class="fld-l">Zniknięcia</span>
+        <label class="check"><input type="checkbox" name="znikniete" value="1" checked>
+          oznacz placówki, których zabrakło w pliku</label>
+        <span class="small muted" style="max-width:34ch">Odznacz, jeśli wgrywasz plik
+          przefiltrowany w wyszukiwarce (np. same Katowice).</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" style="align-self:flex-start">Wgraj i przetwórz</button>
+    <p class="small muted">
+      Plik z całej Polski waży ok. 42 MB — przetworzenie zajmuje kilkanaście sekund.
+      Wgrany plik zostaje na dysku, żeby dało się do niego wrócić, gdy raport
+      pokaże coś dziwnego.
+    </p>
+  </form>
+
+  <div class="card elev">
+    <h2>Jak to działa</h2>
+    <ol class="kroki">
+      <li><b><a href="{{ rspo_www }}" target="_blank" rel="noopener">rspo.gov.pl</a>
+        → wyszukiwarka → „Pobierz wyniki”.</b> Nie trzeba niczego zaznaczać —
+        filtrowanie robimy tutaj.</li>
+      <li><b>Wgrywasz plik.</b> Z 56 tysięcy wierszy zostaje samo śląskie
+        (ok. 6,1 tys. czynnych placówek).</li>
+      <li><b>Baza się aktualizuje.</b> Czego nie było — dochodzi. Co się zmieniło —
+        nadpisuje się i trafia do dziennika zmian. Czego zabrakło — zostaje
+        <b>oznaczone</b>, nigdy skasowane (mogła się przekształcić, a w aplikacji
+        leadów wisi na niej historia).</li>
+      <li><b>Sprawdzasz rejony</b> — czy nie doszło nic w terenie, którego jeszcze
+        nie obsługujemy.</li>
+      <li><b>Pobierasz wykaz</b> i wgrywasz go w aplikacji leadów przez
+        „↑ Import → źródło RSPO → tryb dopisz”.</li>
+    </ol>
+    <div class="info small">
+      <b>Dlaczego z pliku, a nie z API.</b> Oficjalne API rejestru jest bezpłatne,
+      ale wymaga wniosku i do 14 dni na rozpatrzenie — a plik daje dokładnie te
+      same dane i jest publiczny. Gdy dostęp przyjdzie, dołoży się przycisk
+      „Odśwież z rejestru" obok tego wgrywania; reszta ścieżki (numer jako klucz,
+      brak duplikatów, raport zmian) zostaje bez zmian. <b>Wgrywanie pliku
+      zostaje na stałe</b> — regulamin API pozwala CIE zawiesić dostęp i nie
+      gwarantuje dostępności, więc to jest nasze wyjście awaryjne, nie etap
+      przejściowy.
+    </div>
+  </div>
+</div>
+
+{% if raport %}
+<div class="section">
+  <div class="section-title">Raport z wgrania — {{ raport.plik }} ({{ raport.zakres }},
+    {{ raport.sekundy }} s)</div>
+
+  <div class="raport-kafle" style="margin-bottom:14px">
+    <div class="kafel kafel-ok"><div class="kafel-l">Nowych</div>
+      <div class="kafel-v">{{ raport.nowych|liczba }}</div></div>
+    <div class="kafel kafel-akcent"><div class="kafel-l">Zmienionych</div>
+      <div class="kafel-v">{{ raport.zmienionych|liczba }}</div></div>
+    <div class="kafel"><div class="kafel-l">Bez zmian</div>
+      <div class="kafel-v">{{ raport.bez_zmian|liczba }}</div></div>
+    <div class="kafel {{ 'kafel-alarm' if raport.zniknelo }}"><div class="kafel-l">Zniknęło</div>
+      <div class="kafel-v">{{ raport.zniknelo|liczba }}</div></div>
+    <div class="kafel"><div class="kafel-l">Razem w bazie</div>
+      <div class="kafel-v">{{ raport.razem_w_bazie|liczba }}</div></div>
+    <div class="kafel"><div class="kafel-l">W rejonach</div>
+      <div class="kafel-v">{{ raport.w_rejonach|liczba }}</div></div>
+  </div>
+
+  {% for u in raport.uwagi %}<div class="uwaga" style="margin-bottom:8px">{{ u }}</div>{% endfor %}
+
+  <div class="cols cols-2">
+    <div>
+      <div class="section-title">Co się zmieniło w rejestrze</div>
+      {% if raport.zmiany %}
+      <div class="table-scroll" style="max-height:420px">
+        <table class="table table-tight">
+          <thead><tr><th>Placówka</th><th>Pole</th><th>Było</th><th>Jest</th></tr></thead>
+          <tbody>
+          {% for rspo, nazwa, pole, bylo, jest in raport.zmiany %}
+          <tr>
+            <td class="small"><a href="{{ url_for('placowka', rspo=rspo) }}">{{ nazwa }}</a></td>
+            <td class="small muted">{{ pole }}</td>
+            <td class="small" style="color:var(--warn-d)">{{ bylo or '—' }}</td>
+            <td class="small" style="color:var(--ok-t)">{{ jest or '—' }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="muted small">Żadne pole istniejącej placówki się nie zmieniło.
+        Przy pierwszym wgraniu to normalne — wszystko jest nowe.</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <div class="section-title">Co weszło — wg typu</div>
+      <div class="table-scroll" style="max-height:420px">
+        <table class="table table-tight">
+          <thead><tr><th>Typ</th><th class="right">szt.</th></tr></thead>
+          <tbody>
+          {% for typ, ile in raport.wg_typu %}
+          <tr><td class="small">{{ typ }}</td><td class="right nums">{{ ile|liczba }}</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="head-actions" style="margin-top:14px">
+    <a class="btn btn-primary" href="{{ url_for('placowki', rejon='dowolny', grupa='nasze') }}">
+      Zobacz wykaz roboczy →</a>
+    <a class="btn btn-secondary" href="{{ url_for('rejony_view') }}">Sprawdź rejony →</a>
+  </div>
+</div>
+{% endif %}
+
+<div class="section">
+  <div class="section-title">Historia wgrań</div>
+  {% if historia %}
+  <div class="table-scroll">
+    <table class="table table-tight">
+      <thead><tr><th>Kiedy</th><th>Plik</th><th>Zakres</th><th class="right">Wierszy</th>
+        <th class="right">W zakresie</th><th class="right">Nowych</th><th class="right">Zmienionych</th>
+        <th class="right">Zniknęło</th><th class="right">Wróciło</th><th></th></tr></thead>
+      <tbody>
+      {% for i in historia %}
+      <tr>
+        <td class="nowrap nums">{{ i.kiedy }}</td>
+        <td class="small">{{ i.plik }}{% if i.rozmiar_mb %}<span class="muted"> · {{ i.rozmiar_mb }} MB</span>{% endif %}</td>
+        <td class="small muted">{{ i.zakres }}</td>
+        <td class="right nums muted">{{ i.wierszy_w_pliku|liczba }}</td>
+        <td class="right nums">{{ i.w_zakresie|liczba }}</td>
+        <td class="right nums strong">{{ i.nowych|liczba }}</td>
+        <td class="right nums">{{ i.zmienionych|liczba }}</td>
+        <td class="right nums">{{ i.zniknelo|liczba if i.zniknelo else '—' }}</td>
+        <td class="right nums">{{ i.wrocilo|liczba if i.wrocilo else '—' }}</td>
+        <td><a class="small" href="{{ url_for('import_szczegoly', import_id=i.id) }}">zmiany</a></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted small">Jeszcze nic nie wgrano.</p>
+  {% endif %}
+</div>
+{% endblock %}

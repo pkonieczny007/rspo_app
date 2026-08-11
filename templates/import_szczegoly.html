@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Wgranie {{ i.kiedy }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="kicker">Wgranie z {{ i.kiedy }}</div>
+    <h1>{{ i.plik }}</h1>
+    <p class="lede">Zakres: {{ i.zakres }} · {{ i.wierszy_w_pliku|liczba }} wierszy w pliku,
+      {{ i.w_zakresie|liczba }} w zakresie · przetworzone w {{ i.sekundy }} s</p>
+  </div>
+  <div class="head-actions">
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('import_view') }}">← Wgrywanie</a>
+  </div>
+</div>
+
+<div class="section raport-kafle">
+  <div class="kafel kafel-ok"><div class="kafel-l">Nowych</div>
+    <div class="kafel-v">{{ i.nowych|liczba }}</div></div>
+  <div class="kafel kafel-akcent"><div class="kafel-l">Zmienionych</div>
+    <div class="kafel-v">{{ i.zmienionych|liczba }}</div></div>
+  <div class="kafel"><div class="kafel-l">Bez zmian</div>
+    <div class="kafel-v">{{ i.bez_zmian|liczba }}</div></div>
+  <div class="kafel {{ 'kafel-alarm' if i.zniknelo }}"><div class="kafel-l">Zniknęło</div>
+    <div class="kafel-v">{{ i.zniknelo|liczba }}</div></div>
+  <div class="kafel"><div class="kafel-l">Wróciło</div>
+    <div class="kafel-v">{{ i.wrocilo|liczba }}</div></div>
+</div>
+
+{% if i.uwagi %}<div class="uwaga section">{{ i.uwagi }}</div>{% endif %}
+
+<div class="section">
+  <div class="section-title">Dziennik zmian ({{ zmiany|length }} pozycji)</div>
+  {% if zmiany %}
+  <div class="table-scroll">
+    <table class="table table-tight">
+      <thead><tr><th>Placówka</th><th>Pole</th><th>Było</th><th>Jest</th><th class="right">RSPO</th></tr></thead>
+      <tbody>
+      {% for z in zmiany %}
+      <tr>
+        <td><a href="{{ url_for('placowka', rspo=z.rspo) }}">{{ z.nazwa }}</a></td>
+        <td class="small muted">{{ z.pole }}</td>
+        <td class="small" style="color:var(--warn-d)">{{ z.bylo or '—' }}</td>
+        <td class="small" style="color:var(--ok-t)">{{ z.jest or '—' }}</td>
+        <td class="right nums small muted">{{ z.rspo }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted small">Przy tym wgraniu żadne pole istniejącej placówki się nie zmieniło.</p>
+  {% endif %}
+</div>
+{% endblock %}

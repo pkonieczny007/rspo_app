@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}{{ p.nazwa }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="kicker">
+      {{ p.typ }}
+      {% if p.rejon_nazwa %}
+      · <span class="tag tag-rejon" style="background:{{ p.rejon_kolor }}">{{ p.rejon_nazwa }}</span>
+      {% else %}· <span class="tag tag-neutral">poza rejonami</span>{% endif %}
+    </div>
+    <h1>{{ p.nazwa }}</h1>
+    <p class="lede">
+      RSPO <b class="nums">{{ p.rspo }}</b> · {{ p.miejscowosc }}{% if p.gmina and p.gmina != p.miejscowosc %},
+      gm. {{ p.gmina }}{% endif %}, pow. {{ p.powiat }}
+      {% if p.nieobecna_od %}
+      <br><span class="tag tag-warn">nie ma jej w rejestrze od {{ p.nieobecna_od }}</span>
+      — rekord zostaje w bazie, bo placówka mogła się przekształcić.
+      {% endif %}
+    </p>
+  </div>
+  <div class="head-actions">
+    <label class="check">
+      <input type="checkbox" id="objeta" data-rspo="{{ p.rspo }}" {{ 'checked' if p.objeta }}>
+      objęta działaniem
+    </label>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('placowki') }}">← Lista</a>
+  </div>
+</div>
+
+<div class="cols cols-2 section">
+  <div class="card elev">
+    <h2>Kontakt i adres</h2>
+    <dl class="kv">
+      <dt>Adres</dt><dd>{{ p.ulica or '' }} {{ p.nr_budynku or '' }}{% if p.nr_lokalu %}/{{ p.nr_lokalu }}{% endif %}<br>
+        {{ p.kod_pocztowy or '' }} {{ p.poczta or p.miejscowosc }}</dd>
+      <dt>Telefon</dt><dd class="nums">{{ p.telefon or '—' }}</dd>
+      <dt>E-mail</dt><dd>{% if p.email %}<a href="mailto:{{ p.email }}">{{ p.email }}</a>{% else %}—{% endif %}</dd>
+      <dt>Strona www</dt><dd>{% if p.www %}<a href="{{ p.www }}" rel="noopener" target="_blank">{{ p.www }}</a>{% else %}—{% endif %}</dd>
+      <dt>Dyrektor</dt><dd>{{ p.dyrektor or '—' }}</dd>
+    </dl>
+  </div>
+
+  <div class="card elev">
+    <h2>Z rejestru</h2>
+    <dl class="kv">
+      <dt>Uczniów / dzieci</dt><dd class="nums">{{ p.liczba_uczniow if p.liczba_uczniow is not none else '—' }}</dd>
+      <dt>Publiczność</dt><dd>{{ p.publicznosc or '—' }}</dd>
+      <dt>Organ prowadzący</dt><dd>{{ p.organ_nazwa or '—' }}<br>
+        <span class="small muted">{{ p.organ_typ or '' }}</span></dd>
+      <dt>Miejsce w strukturze</dt><dd>{{ p.miejsce_w_strukturze or '—' }}</dd>
+      {% if p.nazwa_nadrzedna %}
+      <dt>Podmiot nadrzędny</dt>
+      <dd><a href="{{ url_for('placowka', rspo=p.rspo_nadrzedny) }}">{{ p.nazwa_nadrzedna }}</a></dd>
+      {% endif %}
+      <dt>Kategoria uczniów</dt><dd>{{ p.kategoria_uczniow or '—' }}</dd>
+      <dt>Specyfika</dt><dd>{{ p.specyfika or '—' }}</dd>
+      <dt>REGON / NIP</dt><dd class="nums small">{{ p.regon or '—' }} / {{ p.nip or '—' }}</dd>
+      <dt>W bazie od</dt><dd class="nums small">{{ p.pierwszy_import }} ·
+        ostatnio potwierdzona {{ p.ostatni_import }}</dd>
+    </dl>
+  </div>
+</div>
+
+{% if rodzina %}
+<div class="section">
+  <div class="section-title">Pozostałe człony tego zespołu — ten sam adres i telefon</div>
+  <div class="info small" style="margin-bottom:10px">
+    Rejestr rozbija zespół szkolno-przedszkolny na osobne rekordy: zespół, szkołę
+    i przedszkole. Kontakt jest jeden. Zanim ktoś zadzwoni — warto wiedzieć,
+    że to nie są trzy różne placówki.
+  </div>
+  <div class="table-scroll">
+    <table class="table table-tight">
+      <thead><tr><th>Nazwa</th><th>Typ</th><th>Telefon</th><th class="right">RSPO</th></tr></thead>
+      <tbody>
+      {% for r in rodzina %}
+      <tr>
+        <td><a href="{{ url_for('placowka', rspo=r.rspo) }}">{{ r.nazwa }}</a></td>
+        <td class="small">{{ r.typ }}</td>
+        <td class="nums">{{ r.telefon or '—' }}</td>
+        <td class="right nums small muted">{{ r.rspo }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% if zmiany %}
+<div class="section">
+  <div class="section-title">Co rejestr zmienił w tej placówce</div>
+  <div class="table-scroll" style="max-height:340px">
+    <table class="table table-tight">
+      <thead><tr><th>Kiedy</th><th>Pole</th><th>Było</th><th>Jest</th></tr></thead>
+      <tbody>
+      {% for z in zmiany %}
+      <tr>
+        <td class="nums small nowrap">{{ z.kiedy }}</td>
+        <td class="small muted">{{ z.pole }}</td>
+        <td class="small" style="color:var(--warn-d)">{{ z.bylo or '—' }}</td>
+        <td class="small" style="color:var(--ok-t)">{{ z.jest or '—' }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
