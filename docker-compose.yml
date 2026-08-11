@@ -1,0 +1,40 @@
+# Jedna usługa, jedna subdomena: rspo.silesia3d.site → port 5310.
+#
+# Bez usługi „demo”, inaczej niż w aplikacji leadów. Tam demo było potrzebne,
+# bo klient oglądał aplikację przed startem i trzeba było mieć gdzie psuć.
+# Tutaj cała baza jest odtwarzalna z pliku z rejestru w kilka minut, a jedyne
+# nasze dane (flagi „objęta”, notatki, rejony) są w kopii — więc drugi kontener
+# byłby drugą rzeczą do aktualizowania bez drugiej korzyści.
+#
+#   docker compose up -d --build rspo
+#
+# Sekrety (SECRET_KEY, w przyszłości dane do API RSPO) idą z pliku `.env`
+# obok tego pliku — NIE wpisywać ich tutaj, bo to repozytorium na GitHubie.
+
+services:
+  rspo:
+    build: .
+    container_name: rspo_app
+    restart: unless-stopped
+    ports:
+      # host:kontener — 5310, ten sam numer co lokalnie, żeby port w README
+      # i port na serwerze znaczyły to samo. 5301/5302 zajmuje aplikacja
+      # leadów, 5100 librus.
+      #
+      # 127.0.0.1 z przodu NIE jest ozdobą: bez tego docker otwiera port na
+      # WSZYSTKICH interfejsach i aplikacja wisi pod http://IP:5310 —
+      # z pominięciem nginx, czyli bez HTTPS i bez hasła. Docker wpisuje się
+      # wprost do iptables, więc ufw takiego portu nie zasłoni. Tak stoi na
+      # tym serwerze librus (0.0.0.0:5100) i to jest błąd, nie wzór.
+      - "127.0.0.1:5310:5000"
+    volumes:
+      - rspo_data:/data
+    env_file:
+      - .env
+    environment:
+      # Ta sama zmienna co lokalnie ($env:RSPO_DATA) — jeden mechanizm,
+      # nie dwa. Baza wypada na /data/rspo.db, wgrane pliki na /data/wgrane.
+      - RSPO_DATA=/data
+
+volumes:
+  rspo_data:

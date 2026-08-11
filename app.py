@@ -22,6 +22,7 @@ EKRANY
   /eksport     XLSX z tego, co widać po filtrach
 """
 import os
+import sqlite3
 import time
 
 from flask import (Flask, flash, jsonify, redirect, render_template, request,
@@ -45,6 +46,32 @@ app.config["MAX_CONTENT_LENGTH"] = 250 * 1024 * 1024
 KATALOG_WGRANE = os.path.join(db.DATA_DIR, "wgrane")
 
 PORT_DOMYSLNY = "5310"     # 5301 zajmuje aplikacja leadów
+
+
+def przygotuj_baze():
+    """
+    Schemat i rejony startowe — PRZY IMPORCIE MODUŁU, nie w `main()`.
+
+    Po co osobno: na serwerze aplikację uruchamia gunicorn poleceniem
+    `app:app`, więc `main()` nie wykonuje się ani razu. Bez tego pierwsze
+    wejście na rspo.silesia3d.site kończyłoby się „no such table: placowki”
+    — a taki komunikat wygląda na zepsute wdrożenie, nie na brakującą linijkę.
+    """
+    db.zaloz()
+    conn = db.polacz()
+    try:
+        return rejony.zasiej(conn)
+    except sqlite3.IntegrityError:
+        # Dwa workery gunicorna startują równocześnie i oba widzą pustą tabelę
+        # rejonów. Ten, który dosiał drugi, wywala się na UNIQUE(nazwa) —
+        # i dobrze, bo znaczy to, że rejony już są. Padnięcie workera przy
+        # starcie z tego powodu byłoby jedyną realną szkodą.
+        return 0
+    finally:
+        conn.close()
+
+
+przygotuj_baze()
 
 # Wyszukiwarka rejestru — stąd bierze się plik. Adres trzymamy w jednym miejscu,
 # bo prowadzi do niego kilka ekranów, a strony rządowe potrafią przenieść
@@ -418,19 +445,19 @@ def za_duzy(_e):
 
 
 def main():
-    db.zaloz()
+    # Schemat i rejony startowe zrobił już `przygotuj_baze()` przy imporcie —
+    # tutaj zostaje samo wypisanie, co z tego wyszło.
     conn = db.polacz()
     try:
-        ile = rejony.zasiej(conn)
-        if ile:
-            print("Założono %d rejonów startowych (lista Kasi z 08.08.2026)." % ile)
         w_bazie = conn.execute("SELECT COUNT(*) FROM placowki").fetchone()[0]
+        ile_rejonow = conn.execute("SELECT COUNT(*) FROM rejony").fetchone()[0]
     finally:
         conn.close()
 
     port = int(os.environ.get("PORT", PORT_DOMYSLNY))
     print("\n  RSPO — narzędzie do zarządzania bazą placówek")
-    print("  baza:      %s  (%d placówek)" % (db.DB_PATH, w_bazie))
+    print("  baza:      %s  (%d placówek, %d rejonów)"
+          % (db.DB_PATH, w_bazie, ile_rejonow))
     print("  adres:     http://127.0.0.1:%d" % port)
     if not w_bazie:
         print("  ZACZNIJ OD: http://127.0.0.1:%d/import — wgraj plik z rspo.gov.pl" % port)

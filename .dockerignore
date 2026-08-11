@@ -1,0 +1,19 @@
+# Baza i wgrane pliki mieszkają w wolumenie, nie w obrazie. Bez tej linijki
+# `docker build` wciągnąłby lokalną bazę razem z flagami „objęta działaniem”
+# i wgranymi 42-megabajtowymi plikami — do warstwy obrazu, na zawsze.
+dane/
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+.git/
+*.log
+
+# .env wchodzi przez env_file w docker-compose. Wypalony w obrazie zostaje
+# w jego warstwie także po skasowaniu pliku.
+.env
+
+# Materiały robocze: notatki o API, pobrane pliki CIE, prezentacja. Przydatne
+# w repozytorium, bezużyteczne w kontenerze — i to kilkanaście megabajtów PDF-ów.
+tmp/

@@ -53,6 +53,24 @@ Baza: `dane/rspo.db`. Inny katalog: `$env:RSPO_DATA="D:\gdzies"`.
 Wgrane pliki lądują w `dane/wgrane/` ze znacznikiem czasu — **zostają na dysku
 celowo**, żeby dało się wrócić do *tego* pliku, gdy raport pokaże coś dziwnego.
 
+Kopia bazy (nie tylko przy wdrożeniu — flagi „objęta”, notatki i poszerzone
+rejony nie wracają z żadnego pliku rejestru):
+
+```powershell
+python narzedzia\kopia.py zrob      # dane\kopie\rspo_RRRR-MM-DD_GGMM.db
+python narzedzia\kopia.py lista
+python narzedzia\kopia.py przywroc --z dane\kopie\rspo_….db
+```
+
+**Na serwerze aplikację uruchamia gunicorn (`app:app`), więc `main()` nie
+wykonuje się ani razu.** Schemat bazy i rejony startowe zakłada dlatego
+`przygotuj_baze()` wywoływane **przy imporcie modułu** `app.py` — przeniesienie
+tego z powrotem do `main()` „bo tam jest start” kończy się na produkcji
+komunikatem `no such table: placowki`.
+
+Wdrożenie na VPS: **`docs/WDROZENIE.md`** (domena `rspo.silesia3d.site`, port
+5310, kontener `rspo_app`, hasło w nginx). Aktualizacja później: `./wdroz.sh`.
+
 ---
 
 ## 3. Trzy decyzje, na których stoi całość
@@ -182,8 +200,16 @@ rejestru leży w `static/logo_rspo.png`, a nie jest ciągnięte z ich serwera. N
 serwerze bez internetu narzędzie ma wyglądać tak samo. Ta sama zasada obowiązuje
 w aplikacji leadów.
 
-**Brak logowania — świadomie.** Narzędzie chodzi lokalnie u koordynatora. Gdy
-wejdzie na VPS, dostanie ten sam mechanizm PIN-ów, co aplikacja leadów.
+**Brak logowania — świadomie, dopóki narzędzie chodziło lokalnie.** Na publicznym
+adresie ta decyzja przestaje obowiązywać i **nie da się jej po prostu przenieść**:
+`/import` przyjmuje dowolny plik, `/rejony/usun/<id>` kasuje rejon,
+a `/placowki/objete` przestawia flagę hurtem — wszystkie bezwarunkowo. Sam
+rejestr jest publiczny, ale to, KTÓRE szkoły klient wziął na cel, już nie.
+
+Na VPS-ie pilnuje tego **nginx Basic Auth** (`docs/WDROZENIE.md`, punkt 5) — bez
+linijki kodu i bez czekania. To **plaster, nie rozwiązanie**: jedno hasło dla
+wszystkich, bez wylogowania i bez śladu, kto co zrobił. Docelowo ten sam
+mechanizm PIN-ów, co w aplikacji leadów; wtedy wpis `auth_basic` z nginx wypada.
 
 **Brak automatu pobierającego plik.** Plik wgrywa człowiek. Automat na serwerze
 umiera po cichu i nikt nie zauważy przez miesiąc — ta sama zasada, co przy
@@ -316,6 +342,12 @@ Rozbicie w rejonach: 733 przedszkola · 549 podstawówek · 278 zespołów szkó
 
 ### Co dalej (kolejność nie jest dowolna)
 
+0. **Wdrożenie na `rspo.silesia3d.site`** — komplet plików gotowy (`Dockerfile`,
+   `docker-compose.yml`, `wdroz.sh`, `nginx/`, `narzedzia/kopia.py`), instrukcja
+   krok po kroku w **`docs/WDROZENIE.md`**. Do wykonania na serwerze; zaczyna się
+   od rekordu `A` w OVH, bo DNS propaguje się najdłużej. **Baza idzie z lokalnej
+   przez `scp`, nie przez `/import` na produkcji** — świeży import odtworzy
+   placówki, ale nie flagi „objęta”, notatki ani poszerzone rejony.
 1. **Mapa rejonów, etap 1 (~1 dzień)** — granice gmin z PRG
    (`geoportal.gov.pl`, GUGiK, dane publiczne; śląskie to 167 gmin), łączone
    z naszymi po **TERYT**, rysowane jako **SVG prosto z GeoJSON — bez kafelków
@@ -354,6 +386,9 @@ Rozbicie w rejonach: 733 przedszkola · 549 podstawówek · 278 zespołów szkó
 
 | Co | Gdzie |
 |---|---|
+| **Wdrożenie na VPS** krok po kroku (DNS, nginx, hasło, certbot, kopie) | `docs\WDROZENIE.md` |
+| Wzór bloku nginx (kopiowany na serwer wprost z repozytorium) | `nginx\rspo.silesia3d.site.conf` |
+| Wdrożenie aplikacji leadów — szerszy opis tej samej ścieżki | `..\leady_app_v5\docs\15_DOMENA_I_WDROZENIE.md` |
 | **Ustalenia o API** (pola, filtry, regulamin, limity, plan wdrożenia) | `tmp\API_RSPO_notatki.md` — **czytać przed pracą nad API** |
 | Oficjalne pliki CIE: OpenAPI, instrukcja, regulamin, wzór wniosku | `tmp\zrodla\` |
 | Szkic maila z wnioskiem o dostęp | `tmp\wniosek-mail-szkic.md` |

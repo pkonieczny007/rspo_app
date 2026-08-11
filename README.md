@@ -22,6 +22,18 @@ python app.py
 Baza siada w `dane/rspo.db`. Inny katalog: `$env:RSPO_DATA="D:\gdzies"`.
 Testy: `python test_rspo.py`.
 
+### Na serwerze
+
+`rspo.silesia3d.site` — docker + gunicorn na porcie 5310, za nginx z hasłem.
+Instrukcja krok po kroku: **[`docs/WDROZENIE.md`](docs/WDROZENIE.md)**.
+Aktualizacja nowej wersji: `./wdroz.sh` (kopia bazy → `git pull` → przebudowa →
+sprawdzenie, że wstało).
+
+```powershell
+python narzedzia\kopia.py zrob        # kopia bazy przed czymkolwiek ryzykownym
+python narzedzia\kopia.py przywroc --z dane\kopie\rspo_….db
+```
+
 ---
 
 ## Cztery ekrany
@@ -193,6 +205,8 @@ Szkoły nie zmieniają się z dnia na dzień — miesiąc jest w sam raz.
 | `zapytania.py` | filtry listy i liczniki pulpitu — jedno miejsce dla ekranu i eksportu |
 | `eksport.py` | XLSX: „wykaz" (8 kolumn pod aplikację leadów) i „pełny" |
 | `test_rspo.py` | 39 sprawdzeń na pliku wzorcowym i bazie tymczasowej |
+| `narzedzia/kopia.py` | kopie bazy (`sqlite3.backup`, nie `cp`) — zrób / lista / przywroc |
+| `Dockerfile`, `docker-compose.yml`, `wdroz.sh`, `nginx/` | wdrożenie na VPS — patrz `docs/WDROZENIE.md` |
 
 Wgrane pliki zostają w `dane/wgrane/` ze znacznikiem czasu — żeby dało się
 wrócić do **tego** pliku, gdy raport pokaże coś dziwnego.
@@ -201,8 +215,11 @@ wrócić do **tego** pliku, gdy raport pokaże coś dziwnego.
 
 ## Czego tu świadomie nie ma
 
-- **logowania** — narzędzie chodzi lokalnie u koordynatora; gdy wejdzie na VPS,
-  dostanie ten sam mechanizm PIN-ów, co aplikacja leadów
+- **logowania** — narzędzie powstawało do pracy lokalnej. Na `rspo.silesia3d.site`
+  dostępu pilnuje **nginx (Basic Auth)**, bo `/import`, `/rejony/usun`
+  i `/placowki/objete` działają bez żadnego sprawdzenia, kto pyta. To plaster:
+  jedno hasło, bez wylogowania i bez śladu, kto co zrobił. Docelowo ten sam
+  mechanizm PIN-ów, co w aplikacji leadów
 - **dopasowywania naszych starych rekordów do rejestru** — to robi
   `leady_app_v5/narzedzia/rspo.py dopasuj` i tam zostaje: dotyczy bazy leadów,
   nie rejestru
