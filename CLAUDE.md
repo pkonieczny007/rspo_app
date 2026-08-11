@@ -418,3 +418,9 @@ Rozbicie w rejonach: 733 przedszkola · 549 podstawówek · 278 zespołów szkó
 | Narzędzie CLI (poprzednik, nadal używane do `dopasuj`) | `..\leady_app_v5\narzedzia\rspo.py` |
 | Plik wzorcowy z rejestru | `..\8.08.2026-home\plik rspo\rspo_2026_08_08.csv` |
 | Kontekst aplikacji leadów | `..\leady_app_v5\CLAUDE.md` |
+
+⚠️ **`tmp\` jest w `.gitignore` — te pliki leżą TYLKO na komputerze lokalnym.**
+Nie ma ich na GitHubie ani w klonie na serwerze. Sesja pracująca na VPS-ie
+zobaczy w tej tabeli ścieżki, których u siebie nie znajdzie — i tak ma być:
+notatki o API, pobrane pliki CIE i szkic wniosku to materiał roboczy, nie kod.
+Praca nad `api.py` odbywa się lokalnie, gdzie te pliki są.

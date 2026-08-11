@@ -1,1 +1,0 @@
-przygotuj uruchomienie na serwerze.
